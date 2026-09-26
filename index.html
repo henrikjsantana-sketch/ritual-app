@@ -183,7 +183,8 @@ const CATS = [
 ];
 
 let session = null;
-let activeCatKey = CATS[0].key;
+let routinesList = [];
+let activeRoutineId = null;
 let signupMode = false;
 
 const $ = id => document.getElementById(id);
@@ -296,9 +297,11 @@ async function boot(){
 function finishBoot(){
   renderProfileBadge();
   setupNav();
-  renderTabs();
   showView('home');
-  loadCategory(activeCatKey);
+  loadRoutinesList().then(()=>{
+    renderTabs();
+    if(activeRoutineId) loadRoutine(activeRoutineId);
+  });
 }
 
 async function ensureProfile(){
@@ -375,7 +378,7 @@ function renderAbout(){
       <h2 style="margin:0 0 10px;">About Ritual</h2>
       <p>Ritual helps you build routines that actually stick — morning, night, after school, after work, and anything else you want to turn into a habit. Check off small steps daily, earn XP, and watch your streaks and titles grow.</p>
       <p>Add friends to see how you're both doing, or check the global leaderboard to see the most consistent people using Ritual.</p>
-      <p class="muted" style="margin-top:16px;">Questions or feedback? Reach us at <strong>hello@yourdomain.com</strong> — replace this with your real contact email.</p>
+      <p class="muted" style="margin-top:16px;">Questions or feedback? Reach us at <strong>henrik.j.santana@gmail.com</strong>.</p>
     </div>
   `;
 }
@@ -529,41 +532,67 @@ function setBgTypeUI(type){
   $('bgImageRow').classList.toggle('hidden', type!=='image');
 }
 
+async function loadRoutinesList(){
+  let {data} = await sb.from('routines').select('*')
+    .eq('user_id', session.user.id).is('parent_routine_id', null).order('created_at');
+
+  if(!data || data.length===0){
+    for(const cat of CATS){
+      const {data: created} = await sb.from('routines').insert({
+        user_id: session.user.id, category: cat.key, name: cat.label, parent_routine_id: null
+      }).select().single();
+      if(created){
+        const rows = cat.items.map((text,i)=>({routine_id: created.id, text, position:i}));
+        await sb.from('routine_items').insert(rows);
+      }
+    }
+    const res = await sb.from('routines').select('*')
+      .eq('user_id', session.user.id).is('parent_routine_id', null).order('created_at');
+    data = res.data;
+  }
+
+  routinesList = data || [];
+  if(!activeRoutineId || !routinesList.find(r=>r.id===activeRoutineId)){
+    activeRoutineId = routinesList.length ? routinesList[0].id : null;
+  }
+}
+
 function renderTabs(){
   $('tabs').innerHTML = '';
-  CATS.forEach(c=>{
+  routinesList.forEach(r=>{
     const b = document.createElement('button');
-    b.className = 'tab' + (c.key===activeCatKey ? ' active' : '');
-    b.textContent = c.label;
-    b.onclick = () => { activeCatKey = c.key; renderTabs(); loadCategory(c.key); };
+    b.className = 'tab' + (r.id===activeRoutineId ? ' active' : '');
+    b.textContent = r.name;
+    b.onclick = () => { activeRoutineId = r.id; renderTabs(); loadRoutine(r.id); };
     $('tabs').appendChild(b);
   });
+  const addBtn = document.createElement('button');
+  addBtn.className = 'tab';
+  addBtn.style.borderStyle = 'dashed';
+  addBtn.textContent = '+ New routine';
+  addBtn.onclick = createNewRoutine;
+  $('tabs').appendChild(addBtn);
 }
 
-async function ensureRoutine(catKey, parentId=null, name=null){
-  const cat = CATS.find(c=>c.key===catKey);
-  let query = sb.from('routines').select('*').eq('user_id', session.user.id).eq('category', catKey);
-  query = parentId ? query.eq('parent_routine_id', parentId) : query.is('parent_routine_id', null);
-  const {data: existing} = await query.limit(1);
-  if(existing && existing.length) return existing[0];
-
-  const {data: created, error} = await sb.from('routines').insert({
-    user_id: session.user.id, category: catKey,
-    name: name || cat.label, parent_routine_id: parentId
+async function createNewRoutine(){
+  const name = prompt("Name your new routine (e.g. Weekend, Study, Skincare):");
+  if(!name || !name.trim()) return;
+  const {data: created} = await sb.from('routines').insert({
+    user_id: session.user.id, category:'custom', name: name.trim(), parent_routine_id: null
   }).select().single();
-  if(error){ console.error(error); return null; }
-
-  if(!parentId){
-    const rows = cat.items.map((text,i)=>({routine_id: created.id, text, position:i}));
-    await sb.from('routine_items').insert(rows);
+  if(created){
+    await sb.from('routine_items').insert({routine_id: created.id, text:"First step", position:0, xp:10});
+    await loadRoutinesList();
+    activeRoutineId = created.id;
+    renderTabs();
+    loadRoutine(activeRoutineId);
   }
-  return created;
 }
 
-async function loadCategory(catKey){
+async function loadRoutine(routineId){
   $('routineArea').innerHTML = '<p class="muted">Loading…</p>';
-  const routine = await ensureRoutine(catKey);
-  if(!routine){ $('routineArea').innerHTML = '<p class="error">Could not load routine.</p>'; return; }
+  const routine = routinesList.find(r=>r.id===routineId);
+  if(!routine){ $('routineArea').innerHTML = '<p class="muted">No routines yet — create one above.</p>'; return; }
 
   const {data: subroutines} = await sb.from('routines').select('*')
     .eq('parent_routine_id', routine.id).order('created_at');
@@ -590,7 +619,29 @@ async function renderRoutine(routine, subroutines){
       <h2 style="margin:0;font-size:18px;">${escapeHtml(routine.name)}</h2>
       <span class="streak">🔥 ${streak} day${streak===1?'':'s'}</span>
     </div>
+    <div style="display:flex;gap:16px;margin:2px 0 10px;">
+      <button class="btn-link" id="renameRoutineBtn" style="margin:0;">Rename</button>
+      <button class="btn-link" id="deleteRoutineBtn" style="margin:0;color:#A5432E;">Delete routine</button>
+    </div>
   `;
+  card.querySelector('#renameRoutineBtn').onclick = async () => {
+    const newName = prompt("Rename this routine:", routine.name);
+    if(newName && newName.trim()){
+      await sb.from('routines').update({name: newName.trim()}).eq('id', routine.id);
+      await loadRoutinesList();
+      renderTabs();
+      loadRoutine(routine.id);
+    }
+  };
+  card.querySelector('#deleteRoutineBtn').onclick = async () => {
+    if(!confirm(`Delete "${routine.name}" and everything in it (steps, sub-routines, history)? This can't be undone.`)) return;
+    await sb.from('routines').delete().eq('id', routine.id);
+    activeRoutineId = null;
+    await loadRoutinesList();
+    renderTabs();
+    if(activeRoutineId) loadRoutine(activeRoutineId);
+    else $('routineArea').innerHTML = '<p class="muted">No routines yet — create one above.</p>';
+  };
   const list = document.createElement('div');
   (items||[]).forEach(it=>{
     const row = document.createElement('div');
@@ -629,11 +680,30 @@ async function renderRoutine(routine, subroutines){
   const subListDiv = document.createElement('div');
   subListDiv.className = 'sub-list';
   subroutines.forEach(sr=>{
-    const chip = document.createElement('button');
-    chip.className = 'sub-chip';
-    chip.style.border = 'none';
-    chip.textContent = sr.name + ' →';
-    chip.onclick = () => openSubroutine(sr, routine, subroutines);
+    const chip = document.createElement('span');
+    chip.style.display = 'inline-flex';
+    chip.style.alignItems = 'center';
+    chip.style.gap = '2px';
+    chip.style.marginRight = '6px';
+    const btn = document.createElement('button');
+    btn.className = 'sub-chip';
+    btn.style.border = 'none';
+    btn.style.margin = '4px 0 0';
+    btn.textContent = sr.name + ' →';
+    btn.onclick = () => openSubroutine(sr, routine, subroutines);
+    const del = document.createElement('button');
+    del.textContent = '×';
+    del.style.background = 'none';
+    del.style.border = 'none';
+    del.style.color = 'var(--soft)';
+    del.style.fontSize = '16px';
+    del.onclick = async () => {
+      if(!confirm(`Delete sub-routine "${sr.name}"?`)) return;
+      await sb.from('routines').delete().eq('id', sr.id);
+      loadRoutine(routine.id);
+    };
+    chip.appendChild(btn);
+    chip.appendChild(del);
     subListDiv.appendChild(chip);
   });
   subCard.appendChild(subListDiv);
@@ -644,8 +714,13 @@ async function renderRoutine(routine, subroutines){
   newSub.querySelector('button').onclick = async () => {
     const val = document.getElementById('newSubInput').value.trim();
     if(!val) return;
-    const created = await ensureRoutine(routine.category, routine.id, val);
-    if(created) loadCategory(routine.category);
+    const {data: created} = await sb.from('routines').insert({
+      user_id: session.user.id, category: routine.category, name: val, parent_routine_id: routine.id
+    }).select().single();
+    if(created){
+      await sb.from('routine_items').insert({routine_id: created.id, text:"First step", position:0, xp:10});
+      loadRoutine(routine.id);
+    }
   };
   subCard.appendChild(newSub);
   area.appendChild(subCard);
@@ -654,14 +729,13 @@ async function renderRoutine(routine, subroutines){
 async function openSubroutine(sub, parentRoutine, siblingSubs){
   const {data: items} = await sb.from('routine_items').select('*').eq('routine_id', sub.id);
   if(!items || items.length===0){
-    // give a blank sub-routine one starter item so it's not empty
     await sb.from('routine_items').insert({routine_id: sub.id, text:"First step", position:0});
   }
   renderRoutine(sub, []);
   const back = document.createElement('button');
   back.className = 'btn-link';
   back.textContent = '← Back to ' + parentRoutine.name;
-  back.onclick = () => loadCategory(parentRoutine.category);
+  back.onclick = () => loadRoutine(parentRoutine.id);
   $('routineArea').prepend(back);
 }
 
