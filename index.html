@@ -72,6 +72,18 @@
       <button class="btn-primary" id="authSubmit">Log in</button>
       <div class="error hidden" id="authError"></div>
       <button class="btn-link" id="authToggle">Need an account? Sign up</button>
+      <button class="btn-link" id="forgotBtn" style="margin-left:16px;">Forgot password?</button>
+    </div>
+  </div>
+
+  <div id="resetView" class="hidden">
+    <h1>Set a new password</h1>
+    <p class="tagline">Choose a new password for your account.</p>
+    <div class="card">
+      <label>New password</label>
+      <input id="newPassword" type="password" autocomplete="new-password">
+      <button class="btn-primary" id="resetSubmit">Save new password</button>
+      <div class="error hidden" id="resetError"></div>
     </div>
   </div>
 
@@ -156,6 +168,47 @@ function showAuthError(msg){
   $('authError').textContent = msg;
   $('authError').classList.remove('hidden');
 }
+
+$('forgotBtn').onclick = async () => {
+  const email = $('email').value.trim();
+  if(!email){ showAuthError("Type your email above first, then click \"Forgot password?\" again."); return; }
+  $('authError').classList.add('hidden');
+  const {error} = await sb.auth.resetPasswordForEmail(email, {redirectTo: window.location.origin});
+  if(error){ showAuthError(error.message); return; }
+  showAuthError("Check your email for a link to reset your password.");
+  $('authError').style.color = 'var(--accent-dark, #96501F)';
+};
+
+$('resetSubmit').onclick = async () => {
+  $('resetError').classList.add('hidden');
+  const newPass = $('newPassword').value;
+  if(!newPass || newPass.length < 6){ 
+    $('resetError').textContent = "Password must be at least 6 characters.";
+    $('resetError').classList.remove('hidden');
+    return;
+  }
+  const {error} = await sb.auth.updateUser({password: newPass});
+  if(error){
+    $('resetError').textContent = error.message;
+    $('resetError').classList.remove('hidden');
+    return;
+  }
+  const {data} = await sb.auth.getSession();
+  session = data.session;
+  $('resetView').classList.add('hidden');
+  boot();
+};
+
+sb.auth.onAuthStateChange((event, sessionData) => {
+  if(event === 'PASSWORD_RECOVERY'){
+    $('authView').classList.add('hidden');
+    $('appView').classList.add('hidden');
+    $('resetView').classList.remove('hidden');
+  } else if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && sessionData && !session){
+    session = sessionData;
+    boot();
+  }
+});
 
 $('signout').onclick = async () => {
   await sb.auth.signOut();
@@ -388,11 +441,6 @@ function computeStreak(comps, totalItems){
 function escapeHtml(s){
   const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
 }
-
-(async () => {
-  const {data} = await sb.auth.getSession();
-  if(data.session){ session = data.session; boot(); }
-})();
 </script>
 </body>
 </html>
