@@ -5,16 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ritual — Build Routines That Stick</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700&family=Poppins:wght@400;600;700&family=Comic+Neue:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   :root{
     --bg:#F2E9DA; --ink:#3A3226; --soft:#8A8072; --line:#E2D6BF;
     --accent:#B5652F; --accent-dark:#96501F; --card:#FFFCF6; --card-alpha:rgba(255,252,246,.88);
+    --font-body:'Nunito',-apple-system,sans-serif;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Nunito',-apple-system,sans-serif;min-height:100vh;background-size:cover;background-position:center;background-attachment:fixed;transition:background-color .3s;}
-  h1,h2,h3{font-family:'Quicksand',sans-serif;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);min-height:100vh;background-size:cover;background-position:center;background-attachment:fixed;transition:background-color .3s;}
+  h1,h2,h3{font-family:'Quicksand',sans-serif;color:var(--ink);}
   .wrap{max-width:640px;margin:0 auto;padding:40px 20px 80px;}
   h1{font-size:30px;font-weight:700;margin:0 0 4px;}
   .tagline{color:var(--soft);margin:0 0 32px;font-size:15px;}
@@ -22,6 +23,7 @@
   label{display:block;font-size:13px;color:var(--soft);margin-bottom:4px;margin-top:14px;font-weight:600;}
   input[type=text],input[type=email],input[type=password]{width:100%;padding:11px 16px;border:1px solid var(--line);border-radius:16px;font-size:15px;background:#FFFFFF;color:var(--ink);font-family:inherit;}
   input[type=color]{width:48px;height:40px;border:1px solid var(--line);border-radius:12px;padding:2px;background:#fff;}
+  select{width:100%;padding:11px 16px;border:1px solid var(--line);border-radius:16px;font-size:15px;background:#FFFFFF;color:var(--ink);font-family:inherit;}
   button{cursor:pointer;font-family:inherit;}
   .btn-primary{background:var(--accent);color:#fff;border:none;border-radius:16px;padding:12px 18px;font-size:15px;font-weight:700;width:100%;margin-top:18px;}
   .btn-primary:hover{background:var(--accent-dark);}
@@ -114,6 +116,16 @@
       </div>
       <label>Accent color</label>
       <input type="color" id="accentInput" value="#B5652F">
+      <label>Text color</label>
+      <input type="color" id="textColorInput" value="#3A3226">
+      <label>Font</label>
+      <select id="fontInput">
+        <option value="Nunito">Nunito (rounded)</option>
+        <option value="Quicksand">Quicksand (rounded)</option>
+        <option value="Poppins">Poppins (clean)</option>
+        <option value="Comic Neue">Comic Neue (playful)</option>
+        <option value="Merriweather">Merriweather (serif)</option>
+      </select>
       <button class="btn-primary" id="saveCustomize">Save look</button>
     </div>
 
@@ -217,7 +229,7 @@ $('signout').onclick = async () => {
   $('authView').classList.remove('hidden');
 };
 
-let currentSettings = {bg_type:'color', bg_value:'#F2E9DA', accent:'#B5652F'};
+let currentSettings = {bg_type:'color', bg_value:'#F2E9DA', accent:'#B5652F', text_color:'#3A3226', font:'Nunito'};
 
 async function boot(){
   $('authView').classList.add('hidden');
@@ -239,6 +251,8 @@ function applySettings(s){
   const root = document.documentElement.style;
   root.setProperty('--accent', s.accent);
   root.setProperty('--accent-dark', shade(s.accent));
+  root.setProperty('--ink', s.text_color || '#3A3226');
+  root.setProperty('--font-body', `'${s.font || 'Nunito'}', -apple-system, sans-serif`);
   if(s.bg_type === 'image' && s.bg_value){
     document.body.style.backgroundImage = `url("${s.bg_value}")`;
     document.body.style.backgroundColor = '';
@@ -261,6 +275,8 @@ function setupCustomizeUI(){
     $('bgColorInput').value = currentSettings.bg_type==='color' ? currentSettings.bg_value : '#F2E9DA';
     $('bgImageInput').value = currentSettings.bg_type==='image' ? currentSettings.bg_value : '';
     $('accentInput').value = currentSettings.accent;
+    $('textColorInput').value = currentSettings.text_color || '#3A3226';
+    $('fontInput').value = currentSettings.font || 'Nunito';
     setBgTypeUI(currentSettings.bg_type);
   };
   document.querySelectorAll('#bgTypeSeg button').forEach(b=>{
@@ -270,7 +286,9 @@ function setupCustomizeUI(){
     const type = document.querySelector('#bgTypeSeg button.active').dataset.type;
     const value = type==='image' ? $('bgImageInput').value.trim() : $('bgColorInput').value;
     const accent = $('accentInput').value;
-    currentSettings = {user_id: session.user.id, bg_type:type, bg_value:value, accent};
+    const text_color = $('textColorInput').value;
+    const font = $('fontInput').value;
+    currentSettings = {user_id: session.user.id, bg_type:type, bg_value:value, accent, text_color, font};
     await sb.from('user_settings').upsert(currentSettings);
     applySettings(currentSettings);
     $('customizePanel').classList.add('hidden');
