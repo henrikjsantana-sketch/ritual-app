@@ -4,48 +4,57 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ritual — Build Routines That Stick</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   :root{
-    --bg:#F5F3EE; --ink:#20241F; --soft:#6B7266; --line:#DBD6C8;
-    --moss:#4C6B4F; --moss-dark:#3A5240; --amber:#C97C3B; --card:#FFFFFF;
+    --bg:#F2E9DA; --ink:#3A3226; --soft:#8A8072; --line:#E2D6BF;
+    --accent:#B5652F; --accent-dark:#96501F; --card:#FFFCF6; --card-alpha:rgba(255,252,246,.88);
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,'Segoe UI',Roboto,sans-serif;min-height:100vh;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Nunito',-apple-system,sans-serif;min-height:100vh;background-size:cover;background-position:center;background-attachment:fixed;transition:background-color .3s;}
+  h1,h2,h3{font-family:'Quicksand',sans-serif;}
   .wrap{max-width:640px;margin:0 auto;padding:40px 20px 80px;}
-  h1{font-size:28px;font-weight:600;margin:0 0 4px;}
+  h1{font-size:30px;font-weight:700;margin:0 0 4px;}
   .tagline{color:var(--soft);margin:0 0 32px;font-size:15px;}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:16px;}
-  label{display:block;font-size:13px;color:var(--soft);margin-bottom:4px;margin-top:14px;}
-  input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-size:15px;background:#FBFAF7;}
+  .card{background:var(--card-alpha);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:22px;padding:24px;margin-bottom:16px;}
+  label{display:block;font-size:13px;color:var(--soft);margin-bottom:4px;margin-top:14px;font-weight:600;}
+  input[type=text],input[type=email],input[type=password]{width:100%;padding:11px 16px;border:1px solid var(--line);border-radius:16px;font-size:15px;background:#FFFFFF;color:var(--ink);font-family:inherit;}
+  input[type=color]{width:48px;height:40px;border:1px solid var(--line);border-radius:12px;padding:2px;background:#fff;}
   button{cursor:pointer;font-family:inherit;}
-  .btn-primary{background:var(--moss);color:#fff;border:none;border-radius:6px;padding:11px 18px;font-size:15px;width:100%;margin-top:18px;}
-  .btn-primary:hover{background:var(--moss-dark);}
-  .btn-link{background:none;border:none;color:var(--moss);font-size:14px;padding:0;margin-top:14px;text-decoration:underline;}
+  .btn-primary{background:var(--accent);color:#fff;border:none;border-radius:16px;padding:12px 18px;font-size:15px;font-weight:700;width:100%;margin-top:18px;}
+  .btn-primary:hover{background:var(--accent-dark);}
+  .btn-link{background:none;border:none;color:var(--accent);font-size:14px;padding:0;margin-top:14px;text-decoration:underline;}
   .error{color:#A5432E;font-size:14px;margin-top:10px;}
   .tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:20px;padding-bottom:4px;}
-  .tab{flex-shrink:0;padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:var(--card);font-size:14px;color:var(--soft);}
-  .tab.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .tab{flex-shrink:0;padding:9px 16px;border-radius:24px;border:1px solid var(--line);background:var(--card-alpha);font-size:14px;font-weight:600;color:var(--soft);}
+  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
   .routine-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-  .streak{background:#EEE8D8;color:var(--amber);font-size:13px;padding:3px 10px;border-radius:12px;font-weight:600;}
+  .streak{background:var(--bg);color:var(--accent);font-size:13px;padding:4px 12px;border-radius:20px;font-weight:700;}
   .item-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);}
   .item-row:last-child{border-bottom:none;}
-  .item-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--moss);flex-shrink:0;}
+  .item-row input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent);flex-shrink:0;border-radius:8px;}
   .item-row span{flex:1;font-size:15px;}
   .item-row.done span{color:var(--soft);text-decoration:line-through;}
   .rm{background:none;border:none;color:var(--soft);font-size:18px;}
   .add-item{display:flex;gap:8px;margin-top:12px;}
   .add-item input{flex:1;}
-  .add-item button{background:var(--moss);color:#fff;border:none;border-radius:6px;padding:8px 14px;}
+  .add-item button{background:var(--accent);color:#fff;border:none;border-radius:16px;padding:9px 16px;font-weight:700;}
   .sub-list{margin-top:10px;}
-  .sub-chip{display:inline-flex;align-items:center;gap:6px;background:#EEF2EA;border-radius:16px;padding:5px 12px;font-size:13px;margin:4px 6px 0 0;}
+  .sub-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;margin:4px 6px 0 0;border:1px solid var(--line);}
   .new-sub{display:flex;gap:8px;margin-top:14px;}
   .new-sub input{flex:1;}
-  .new-sub button{background:var(--amber);color:#fff;border:none;border-radius:6px;padding:8px 14px;}
+  .new-sub button{background:var(--accent-dark);color:#fff;border:none;border-radius:16px;padding:9px 16px;font-weight:700;}
   .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+  .icon-btn{background:var(--card-alpha);border:1px solid var(--line);border-radius:14px;padding:8px 12px;font-size:16px;}
   .signout{background:none;border:none;color:var(--soft);font-size:13px;text-decoration:underline;}
   .hidden{display:none;}
   .muted{color:var(--soft);font-size:14px;}
+  .topbar-actions{display:flex;gap:10px;align-items:center;}
+  .seg{display:flex;gap:6px;margin-top:10px;}
+  .seg button{flex:1;padding:8px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--soft);font-weight:600;font-size:13px;}
+  .seg button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 </style>
 </head>
 <body>
@@ -72,7 +81,28 @@
         <h1 style="margin-bottom:0;">Ritual</h1>
         <span class="muted" id="whoami"></span>
       </div>
-      <button class="signout" id="signout">Log out</button>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="customizeBtn" title="Customize look">🎨</button>
+        <button class="signout" id="signout">Log out</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="customizePanel">
+      <h3 style="margin:0;font-size:16px;">Customize your look</h3>
+      <label>Background</label>
+      <div class="seg" id="bgTypeSeg">
+        <button data-type="color" class="active">Color</button>
+        <button data-type="image">Image</button>
+      </div>
+      <div id="bgColorRow" style="margin-top:10px;">
+        <input type="color" id="bgColorInput" value="#F2E9DA">
+      </div>
+      <div id="bgImageRow" class="hidden" style="margin-top:10px;">
+        <input type="text" id="bgImageInput" placeholder="Paste an image URL…">
+      </div>
+      <label>Accent color</label>
+      <input type="color" id="accentInput" value="#B5652F">
+      <button class="btn-primary" id="saveCustomize">Save look</button>
     </div>
 
     <div class="tabs" id="tabs"></div>
@@ -134,12 +164,70 @@ $('signout').onclick = async () => {
   $('authView').classList.remove('hidden');
 };
 
+let currentSettings = {bg_type:'color', bg_value:'#F2E9DA', accent:'#B5652F'};
+
 async function boot(){
   $('authView').classList.add('hidden');
   $('appView').classList.remove('hidden');
   $('whoami').textContent = session.user.email;
+  await loadSettings();
+  setupCustomizeUI();
   renderTabs();
   await loadCategory(activeCatKey);
+}
+
+async function loadSettings(){
+  const {data} = await sb.from('user_settings').select('*').eq('user_id', session.user.id).maybeSingle();
+  if(data) currentSettings = data;
+  applySettings(currentSettings);
+}
+
+function applySettings(s){
+  const root = document.documentElement.style;
+  root.setProperty('--accent', s.accent);
+  root.setProperty('--accent-dark', shade(s.accent));
+  if(s.bg_type === 'image' && s.bg_value){
+    document.body.style.backgroundImage = `url("${s.bg_value}")`;
+    document.body.style.backgroundColor = '';
+  } else {
+    document.body.style.backgroundImage = 'none';
+    document.body.style.backgroundColor = s.bg_value || '#F2E9DA';
+    root.setProperty('--bg', s.bg_value || '#F2E9DA');
+  }
+}
+
+function shade(hex){
+  const n = parseInt(hex.slice(1),16);
+  const r = Math.max(0,(n>>16)-30), g = Math.max(0,((n>>8)&255)-30), b = Math.max(0,(n&255)-30);
+  return '#' + [r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+
+function setupCustomizeUI(){
+  $('customizeBtn').onclick = () => {
+    $('customizePanel').classList.toggle('hidden');
+    $('bgColorInput').value = currentSettings.bg_type==='color' ? currentSettings.bg_value : '#F2E9DA';
+    $('bgImageInput').value = currentSettings.bg_type==='image' ? currentSettings.bg_value : '';
+    $('accentInput').value = currentSettings.accent;
+    setBgTypeUI(currentSettings.bg_type);
+  };
+  document.querySelectorAll('#bgTypeSeg button').forEach(b=>{
+    b.onclick = () => setBgTypeUI(b.dataset.type);
+  });
+  $('saveCustomize').onclick = async () => {
+    const type = document.querySelector('#bgTypeSeg button.active').dataset.type;
+    const value = type==='image' ? $('bgImageInput').value.trim() : $('bgColorInput').value;
+    const accent = $('accentInput').value;
+    currentSettings = {user_id: session.user.id, bg_type:type, bg_value:value, accent};
+    await sb.from('user_settings').upsert(currentSettings);
+    applySettings(currentSettings);
+    $('customizePanel').classList.add('hidden');
+  };
+}
+
+function setBgTypeUI(type){
+  document.querySelectorAll('#bgTypeSeg button').forEach(b=>b.classList.toggle('active', b.dataset.type===type));
+  $('bgColorRow').classList.toggle('hidden', type!=='color');
+  $('bgImageRow').classList.toggle('hidden', type!=='image');
 }
 
 function renderTabs(){
