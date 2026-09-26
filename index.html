@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ritual — Build Routines That Stick</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  :root{
+    --bg:#F5F3EE; --ink:#20241F; --soft:#6B7266; --line:#DBD6C8;
+    --moss:#4C6B4F; --moss-dark:#3A5240; --amber:#C97C3B; --card:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,'Segoe UI',Roboto,sans-serif;min-height:100vh;}
+  .wrap{max-width:640px;margin:0 auto;padding:40px 20px 80px;}
+  h1{font-size:28px;font-weight:600;margin:0 0 4px;}
+  .tagline{color:var(--soft);margin:0 0 32px;font-size:15px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:16px;}
+  label{display:block;font-size:13px;color:var(--soft);margin-bottom:4px;margin-top:14px;}
+  input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-size:15px;background:#FBFAF7;}
+  button{cursor:pointer;font-family:inherit;}
+  .btn-primary{background:var(--moss);color:#fff;border:none;border-radius:6px;padding:11px 18px;font-size:15px;width:100%;margin-top:18px;}
+  .btn-primary:hover{background:var(--moss-dark);}
+  .btn-link{background:none;border:none;color:var(--moss);font-size:14px;padding:0;margin-top:14px;text-decoration:underline;}
+  .error{color:#A5432E;font-size:14px;margin-top:10px;}
+  .tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:20px;padding-bottom:4px;}
+  .tab{flex-shrink:0;padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:var(--card);font-size:14px;color:var(--soft);}
+  .tab.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .routine-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .streak{background:#EEE8D8;color:var(--amber);font-size:13px;padding:3px 10px;border-radius:12px;font-weight:600;}
+  .item-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .item-row:last-child{border-bottom:none;}
+  .item-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--moss);flex-shrink:0;}
+  .item-row span{flex:1;font-size:15px;}
+  .item-row.done span{color:var(--soft);text-decoration:line-through;}
+  .rm{background:none;border:none;color:var(--soft);font-size:18px;}
+  .add-item{display:flex;gap:8px;margin-top:12px;}
+  .add-item input{flex:1;}
+  .add-item button{background:var(--moss);color:#fff;border:none;border-radius:6px;padding:8px 14px;}
+  .sub-list{margin-top:10px;}
+  .sub-chip{display:inline-flex;align-items:center;gap:6px;background:#EEF2EA;border-radius:16px;padding:5px 12px;font-size:13px;margin:4px 6px 0 0;}
+  .new-sub{display:flex;gap:8px;margin-top:14px;}
+  .new-sub input{flex:1;}
+  .new-sub button{background:var(--amber);color:#fff;border:none;border-radius:6px;padding:8px 14px;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+  .signout{background:none;border:none;color:var(--soft);font-size:13px;text-decoration:underline;}
+  .hidden{display:none;}
+  .muted{color:var(--soft);font-size:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="authView">
+    <h1>Ritual</h1>
+    <p class="tagline">Small routines, done daily, become who you are.</p>
+    <div class="card">
+      <h2 id="authTitle" style="margin:0;font-size:18px;">Log in</h2>
+      <label>Email</label>
+      <input id="email" type="email" autocomplete="email">
+      <label>Password</label>
+      <input id="password" type="password" autocomplete="current-password">
+      <button class="btn-primary" id="authSubmit">Log in</button>
+      <div class="error hidden" id="authError"></div>
+      <button class="btn-link" id="authToggle">Need an account? Sign up</button>
+    </div>
+  </div>
+
+  <div id="appView" class="hidden">
+    <div class="topbar">
+      <div>
+        <h1 style="margin-bottom:0;">Ritual</h1>
+        <span class="muted" id="whoami"></span>
+      </div>
+      <button class="signout" id="signout">Log out</button>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+    <div id="routineArea"></div>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL = "https://vpeigrziwpxmvszkzcrj.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Cw3J1jQAidORRclfLQttrg_DtA_SfCX";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const CATS = [
+  {key:"morning", label:"Morning", items:["Make the bed","Drink a glass of water","Stretch for 5 minutes","Eat breakfast"]},
+  {key:"night", label:"Night", items:["Lay out tomorrow's clothes","No screens 30 min before bed","Brush teeth","Read a few pages"]},
+  {key:"after_school", label:"After School", items:["Snack + water","Homework block","Free time"]},
+  {key:"after_work", label:"After Work", items:["Change out of work clothes","10-min walk","Plan tomorrow's top task"]},
+];
+
+let session = null;
+let activeCatKey = CATS[0].key;
+let signupMode = false;
+
+const $ = id => document.getElementById(id);
+
+$('authToggle').onclick = () => {
+  signupMode = !signupMode;
+  $('authTitle').textContent = signupMode ? "Sign up" : "Log in";
+  $('authSubmit').textContent = signupMode ? "Sign up" : "Log in";
+  $('authToggle').textContent = signupMode ? "Already have an account? Log in" : "Need an account? Sign up";
+};
+
+$('authSubmit').onclick = async () => {
+  $('authError').classList.add('hidden');
+  const email = $('email').value.trim();
+  const password = $('password').value;
+  if(!email || !password){ showAuthError("Enter an email and password."); return; }
+  const fn = signupMode ? sb.auth.signUp({email, password}) : sb.auth.signInWithPassword({email, password});
+  const {data, error} = await fn;
+  if(error){ showAuthError(error.message); return; }
+  if(signupMode && !data.session){
+    showAuthError("Check your email to confirm your account, then log in.");
+    return;
+  }
+  session = data.session;
+  boot();
+};
+
+function showAuthError(msg){
+  $('authError').textContent = msg;
+  $('authError').classList.remove('hidden');
+}
+
+$('signout').onclick = async () => {
+  await sb.auth.signOut();
+  session = null;
+  $('appView').classList.add('hidden');
+  $('authView').classList.remove('hidden');
+};
+
+async function boot(){
+  $('authView').classList.add('hidden');
+  $('appView').classList.remove('hidden');
+  $('whoami').textContent = session.user.email;
+  renderTabs();
+  await loadCategory(activeCatKey);
+}
+
+function renderTabs(){
+  $('tabs').innerHTML = '';
+  CATS.forEach(c=>{
+    const b = document.createElement('button');
+    b.className = 'tab' + (c.key===activeCatKey ? ' active' : '');
+    b.textContent = c.label;
+    b.onclick = () => { activeCatKey = c.key; renderTabs(); loadCategory(c.key); };
+    $('tabs').appendChild(b);
+  });
+}
+
+async function ensureRoutine(catKey, parentId=null, name=null){
+  const cat = CATS.find(c=>c.key===catKey);
+  let query = sb.from('routines').select('*').eq('user_id', session.user.id).eq('category', catKey);
+  query = parentId ? query.eq('parent_routine_id', parentId) : query.is('parent_routine_id', null);
+  const {data: existing} = await query.limit(1);
+  if(existing && existing.length) return existing[0];
+
+  const {data: created, error} = await sb.from('routines').insert({
+    user_id: session.user.id, category: catKey,
+    name: name || cat.label, parent_routine_id: parentId
+  }).select().single();
+  if(error){ console.error(error); return null; }
+
+  if(!parentId){
+    const rows = cat.items.map((text,i)=>({routine_id: created.id, text, position:i}));
+    await sb.from('routine_items').insert(rows);
+  }
+  return created;
+}
+
+async function loadCategory(catKey){
+  $('routineArea').innerHTML = '<p class="muted">Loading…</p>';
+  const routine = await ensureRoutine(catKey);
+  if(!routine){ $('routineArea').innerHTML = '<p class="error">Could not load routine.</p>'; return; }
+
+  const {data: subroutines} = await sb.from('routines').select('*')
+    .eq('parent_routine_id', routine.id).order('created_at');
+
+  await renderRoutine(routine, subroutines || []);
+}
+
+async function renderRoutine(routine, subroutines){
+  const {data: items} = await sb.from('routine_items').select('*').eq('routine_id', routine.id).order('position');
+  const today = new Date().toISOString().slice(0,10);
+  const {data: comps} = await sb.from('completions').select('*')
+    .eq('user_id', session.user.id).eq('routine_id', routine.id).order('completed_date', {ascending:false}).limit(60);
+  const todayComp = (comps||[]).find(c=>c.completed_date===today);
+  const doneIds = new Set(todayComp ? todayComp.done_item_ids : []);
+  const streak = computeStreak(comps||[], (items||[]).length);
+
+  const area = $('routineArea');
+  area.innerHTML = '';
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="routine-header">
+      <h2 style="margin:0;font-size:18px;">${escapeHtml(routine.name)}</h2>
+      <span class="streak">🔥 ${streak} day${streak===1?'':'s'}</span>
+    </div>
+  `;
+  const list = document.createElement('div');
+  (items||[]).forEach(it=>{
+    const row = document.createElement('div');
+    row.className = 'item-row' + (doneIds.has(it.id) ? ' done' : '');
+    row.innerHTML = `<input type="checkbox" ${doneIds.has(it.id)?'checked':''}> <span>${escapeHtml(it.text)}</span> <button class="rm">×</button>`;
+    row.querySelector('input').onchange = async (e) => {
+      if(e.target.checked) doneIds.add(it.id); else doneIds.delete(it.id);
+      await saveCompletion(routine.id, today, [...doneIds]);
+      renderRoutine(routine, subroutines);
+    };
+    row.querySelector('.rm').onclick = async () => {
+      await sb.from('routine_items').delete().eq('id', it.id);
+      renderRoutine(routine, subroutines);
+    };
+    list.appendChild(row);
+  });
+  card.appendChild(list);
+
+  const addRow = document.createElement('div');
+  addRow.className = 'add-item';
+  addRow.innerHTML = `<input type="text" placeholder="Add a step…" id="newItemInput"><button>Add</button>`;
+  addRow.querySelector('button').onclick = async () => {
+    const val = document.getElementById('newItemInput').value.trim();
+    if(!val) return;
+    await sb.from('routine_items').insert({routine_id: routine.id, text: val, position:(items||[]).length});
+    renderRoutine(routine, subroutines);
+  };
+  card.appendChild(addRow);
+  area.appendChild(card);
+
+  const subCard = document.createElement('div');
+  subCard.className = 'card';
+  subCard.innerHTML = `<h3 style="margin:0 0 4px;font-size:15px;">Sub-routines</h3><p class="muted" style="margin-top:0;">e.g. a "Gym" checklist that lives inside this routine.</p>`;
+  const subListDiv = document.createElement('div');
+  subListDiv.className = 'sub-list';
+  subroutines.forEach(sr=>{
+    const chip = document.createElement('button');
+    chip.className = 'sub-chip';
+    chip.style.border = 'none';
+    chip.textContent = sr.name + ' →';
+    chip.onclick = () => openSubroutine(sr, routine, subroutines);
+    subListDiv.appendChild(chip);
+  });
+  subCard.appendChild(subListDiv);
+
+  const newSub = document.createElement('div');
+  newSub.className = 'new-sub';
+  newSub.innerHTML = `<input type="text" placeholder="New sub-routine name (e.g. Gym)" id="newSubInput"><button>Create</button>`;
+  newSub.querySelector('button').onclick = async () => {
+    const val = document.getElementById('newSubInput').value.trim();
+    if(!val) return;
+    const created = await ensureRoutine(routine.category, routine.id, val);
+    if(created) loadCategory(routine.category);
+  };
+  subCard.appendChild(newSub);
+  area.appendChild(subCard);
+}
+
+async function openSubroutine(sub, parentRoutine, siblingSubs){
+  const {data: items} = await sb.from('routine_items').select('*').eq('routine_id', sub.id);
+  if(!items || items.length===0){
+    // give a blank sub-routine one starter item so it's not empty
+    await sb.from('routine_items').insert({routine_id: sub.id, text:"First step", position:0});
+  }
+  renderRoutine(sub, []);
+  const back = document.createElement('button');
+  back.className = 'btn-link';
+  back.textContent = '← Back to ' + parentRoutine.name;
+  back.onclick = () => loadCategory(parentRoutine.category);
+  $('routineArea').prepend(back);
+}
+
+async function saveCompletion(routineId, dateStr, doneIds){
+  await sb.from('completions').upsert({
+    user_id: session.user.id, routine_id: routineId,
+    completed_date: dateStr, done_item_ids: doneIds
+  }, {onConflict:'user_id,routine_id,completed_date'});
+}
+
+function computeStreak(comps, totalItems){
+  if(totalItems===0) return 0;
+  let streak = 0;
+  let cursor = new Date();
+  for(let i=0;i<365;i++){
+    const dstr = cursor.toISOString().slice(0,10);
+    const comp = comps.find(c=>c.completed_date===dstr);
+    const complete = comp && comp.done_item_ids.length >= totalItems && totalItems>0;
+    if(complete){ streak++; cursor.setDate(cursor.getDate()-1); }
+    else break;
+  }
+  return streak;
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
+
+(async () => {
+  const {data} = await sb.auth.getSession();
+  if(data.session){ session = data.session; boot(); }
+})();
+</script>
+</body>
+</html>
