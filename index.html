@@ -57,6 +57,18 @@
   .seg{display:flex;gap:6px;margin-top:10px;}
   .seg button{flex:1;padding:8px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--soft);font-weight:600;font-size:13px;}
   .seg button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .nav-main{display:flex;gap:18px;margin-bottom:24px;border-bottom:2px solid var(--line);padding-bottom:10px;flex-wrap:wrap;}
+  .nav-main button{background:none;border:none;color:var(--soft);font-weight:700;font-size:15px;padding:4px 2px;border-bottom:3px solid transparent;}
+  .nav-main button.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .lb-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);}
+  .lb-row:last-child{border-bottom:none;}
+  .lb-rank{font-weight:700;color:var(--soft);width:32px;}
+  .lb-name{flex:1;font-weight:600;}
+  .lb-xp{color:var(--accent);font-weight:700;}
+  .add-friend{display:flex;gap:8px;margin-top:10px;}
+  .add-friend input{flex:1;}
+  .pending-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;}
+  .add-item input[type=number]{width:64px;flex:none;text-align:center;}
 </style>
 </head>
 <body>
@@ -129,8 +141,31 @@
       <button class="btn-primary" id="saveCustomize">Save look</button>
     </div>
 
-    <div class="tabs" id="tabs"></div>
-    <div id="routineArea"></div>
+    <div class="card hidden" id="usernameSetup">
+      <h3 style="margin:0;font-size:16px;">Pick a username</h3>
+      <p class="muted" style="margin-top:4px;">Shown on leaderboards and to friends — keep it unique.</p>
+      <input type="text" id="usernameInput" placeholder="e.g. alex_runs">
+      <button class="btn-primary" id="usernameSubmit">Save username</button>
+      <div class="error hidden" id="usernameError"></div>
+    </div>
+
+    <div class="nav-main" id="mainNav">
+      <button data-view="home" class="active">Home</button>
+      <button data-view="routines">Routines</button>
+      <button data-view="leaderboard">Leaderboard</button>
+      <button data-view="about">About</button>
+    </div>
+
+    <div id="homeView"></div>
+
+    <div id="routinesView" class="hidden">
+      <div class="tabs" id="tabs"></div>
+      <div id="routineArea"></div>
+    </div>
+
+    <div id="leaderboardView" class="hidden"></div>
+
+    <div id="aboutView" class="hidden"></div>
   </div>
 
 </div>
@@ -225,20 +260,213 @@ sb.auth.onAuthStateChange((event, sessionData) => {
 $('signout').onclick = async () => {
   await sb.auth.signOut();
   session = null;
+  myProfile = null;
+  $('usernameSetup').classList.add('hidden');
   $('appView').classList.add('hidden');
   $('authView').classList.remove('hidden');
 };
 
 let currentSettings = {bg_type:'color', bg_value:'#F2E9DA', accent:'#B5652F', text_color:'#3A3226', font:'Nunito'};
 
+const TITLES = [
+  {min:0, title:"Newcomer", icon:"🌱"},
+  {min:50, title:"Rising", icon:"🔥"},
+  {min:150, title:"Committed", icon:"⭐"},
+  {min:400, title:"Disciplined", icon:"💎"},
+  {min:1000, title:"Master", icon:"🏆"},
+  {min:2500, title:"Legend", icon:"👑"},
+];
+function getTitleFor(xp){
+  let t = TITLES[0];
+  for(const x of TITLES) if(xp >= x.min) t = x;
+  return t;
+}
+let myProfile = null;
+
 async function boot(){
   $('authView').classList.add('hidden');
   $('appView').classList.remove('hidden');
-  $('whoami').textContent = session.user.email;
   await loadSettings();
   setupCustomizeUI();
+  const ready = await ensureProfile();
+  if(!ready) return;
+  finishBoot();
+}
+
+function finishBoot(){
+  renderProfileBadge();
+  setupNav();
   renderTabs();
-  await loadCategory(activeCatKey);
+  showView('home');
+  loadCategory(activeCatKey);
+}
+
+async function ensureProfile(){
+  const {data} = await sb.from('profiles').select('*').eq('user_id', session.user.id).maybeSingle();
+  if(data){ myProfile = data; return true; }
+
+  $('usernameSetup').classList.remove('hidden');
+  $('usernameSubmit').onclick = async () => {
+    $('usernameError').classList.add('hidden');
+    const uname = $('usernameInput').value.trim();
+    if(!uname || uname.length < 3){
+      $('usernameError').textContent = "Username must be at least 3 characters.";
+      $('usernameError').classList.remove('hidden');
+      return;
+    }
+    const {data: created, error} = await sb.from('profiles')
+      .insert({user_id: session.user.id, username: uname, total_xp:0}).select().single();
+    if(error){
+      $('usernameError').textContent = error.message.toLowerCase().includes('duplicate') ? "That username is taken." : error.message;
+      $('usernameError').classList.remove('hidden');
+      return;
+    }
+    myProfile = created;
+    $('usernameSetup').classList.add('hidden');
+    finishBoot();
+  };
+  return false;
+}
+
+function renderProfileBadge(){
+  const t = getTitleFor(myProfile.total_xp);
+  $('whoami').innerHTML = `${t.icon} <strong>${escapeHtml(myProfile.username)}</strong> · ${t.title} · ${myProfile.total_xp} XP`;
+}
+
+async function adjustXp(delta){
+  if(!myProfile) return;
+  myProfile.total_xp = Math.max(0, myProfile.total_xp + delta);
+  await sb.from('profiles').update({total_xp: myProfile.total_xp}).eq('user_id', session.user.id);
+  renderProfileBadge();
+}
+
+function setupNav(){
+  document.querySelectorAll('#mainNav button').forEach(b=>{
+    b.onclick = () => showView(b.dataset.view);
+  });
+}
+
+function showView(view){
+  ['home','routines','leaderboard','about'].forEach(v=>{
+    $(v+'View').classList.toggle('hidden', v!==view);
+  });
+  document.querySelectorAll('#mainNav button').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+  if(view==='home') renderHome();
+  if(view==='leaderboard') loadLeaderboard('global');
+  if(view==='about') renderAbout();
+}
+
+function renderHome(){
+  const t = getTitleFor(myProfile.total_xp);
+  $('homeView').innerHTML = `
+    <div class="card">
+      <h2 style="margin:0 0 6px;">Welcome back, ${escapeHtml(myProfile.username)}</h2>
+      <p class="muted" style="margin:0;">${t.icon} ${t.title} · ${myProfile.total_xp} total XP</p>
+    </div>
+    <div class="card">
+      <p class="muted" style="margin:0;">Head to <strong>Routines</strong> to check off today's steps and earn XP, or check the <strong>Leaderboard</strong> to see how you stack up against friends.</p>
+    </div>
+  `;
+}
+
+function renderAbout(){
+  $('aboutView').innerHTML = `
+    <div class="card">
+      <h2 style="margin:0 0 10px;">About Ritual</h2>
+      <p>Ritual helps you build routines that actually stick — morning, night, after school, after work, and anything else you want to turn into a habit. Check off small steps daily, earn XP, and watch your streaks and titles grow.</p>
+      <p>Add friends to see how you're both doing, or check the global leaderboard to see the most consistent people using Ritual.</p>
+      <p class="muted" style="margin-top:16px;">Questions or feedback? Reach us at <strong>hello@yourdomain.com</strong> — replace this with your real contact email.</p>
+    </div>
+  `;
+}
+
+let lbMode = 'global';
+async function loadLeaderboard(mode){
+  lbMode = mode || lbMode;
+  const view = $('leaderboardView');
+  view.innerHTML = '<p class="muted">Loading…</p>';
+
+  let rows = [];
+  if(lbMode === 'global'){
+    const {data} = await sb.from('profiles').select('*').order('total_xp', {ascending:false}).limit(20);
+    rows = data || [];
+  } else {
+    const {data: fr} = await sb.from('friends').select('*').eq('status','accepted')
+      .or(`user_id.eq.${session.user.id},friend_id.eq.${session.user.id}`);
+    const ids = new Set([session.user.id]);
+    (fr||[]).forEach(f=>{ ids.add(f.user_id); ids.add(f.friend_id); });
+    const {data} = await sb.from('profiles').select('*').in('user_id',[...ids]).order('total_xp',{ascending:false});
+    rows = data || [];
+  }
+
+  view.innerHTML = '';
+  const seg = document.createElement('div');
+  seg.className = 'seg';
+  seg.style.marginBottom = '16px';
+  seg.innerHTML = `<button data-m="global" class="${lbMode==='global'?'active':''}">Global</button><button data-m="friends" class="${lbMode==='friends'?'active':''}">Friends</button>`;
+  seg.querySelectorAll('button').forEach(b=> b.onclick = () => loadLeaderboard(b.dataset.m));
+  view.appendChild(seg);
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  if(rows.length===0){
+    card.innerHTML = '<p class="muted">No one here yet.</p>';
+  } else {
+    rows.forEach((r,i)=>{
+      const t = getTitleFor(r.total_xp);
+      const row = document.createElement('div');
+      row.className = 'lb-row';
+      row.innerHTML = `<span class="lb-rank">#${i+1}</span><span class="lb-name">${t.icon} ${escapeHtml(r.username)}${r.user_id===session.user.id ? ' (you)' : ''}</span><span class="lb-xp">${r.total_xp} XP</span>`;
+      card.appendChild(row);
+    });
+  }
+  view.appendChild(card);
+
+  if(lbMode === 'friends') await renderFriendsManager(view);
+}
+
+async function renderFriendsManager(container){
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `<h3 style="margin:0 0 4px;font-size:15px;">Add a friend</h3>`;
+  const addRow = document.createElement('div');
+  addRow.className = 'add-friend';
+  addRow.innerHTML = `<input type="text" id="friendUsernameInput" placeholder="Their username"><button class="btn-primary" style="width:auto;margin:0;">Send</button>`;
+  card.appendChild(addRow);
+  const msg = document.createElement('div');
+  msg.className = 'muted';
+  msg.style.marginTop = '10px';
+  card.appendChild(msg);
+
+  addRow.querySelector('button').onclick = async () => {
+    const uname = card.querySelector('#friendUsernameInput').value.trim();
+    if(!uname) return;
+    const {data: target} = await sb.from('profiles').select('*').ilike('username', uname).maybeSingle();
+    if(!target){ msg.textContent = "No user with that username."; return; }
+    if(target.user_id === session.user.id){ msg.textContent = "That's you!"; return; }
+    const {error} = await sb.from('friends').insert({user_id: session.user.id, friend_id: target.user_id, status:'pending'});
+    msg.textContent = error ? (error.message.toLowerCase().includes('duplicate') ? "Already sent, or already friends." : error.message) : "Friend request sent!";
+  };
+  container.appendChild(card);
+
+  const {data: incoming} = await sb.from('friends').select('*').eq('friend_id', session.user.id).eq('status','pending');
+  if(incoming && incoming.length){
+    const reqCard = document.createElement('div');
+    reqCard.className = 'card';
+    reqCard.innerHTML = `<h3 style="margin:0 0 8px;font-size:15px;">Friend requests</h3>`;
+    for(const req of incoming){
+      const {data: sender} = await sb.from('profiles').select('username').eq('user_id', req.user_id).maybeSingle();
+      const row = document.createElement('div');
+      row.className = 'pending-row';
+      row.innerHTML = `<span>${escapeHtml(sender?.username || 'Someone')}</span><button class="btn-link" style="margin:0;">Accept</button>`;
+      row.querySelector('button').onclick = async () => {
+        await sb.from('friends').update({status:'accepted'}).eq('id', req.id);
+        loadLeaderboard('friends');
+      };
+      reqCard.appendChild(row);
+    }
+    container.appendChild(reqCard);
+  }
 }
 
 async function loadSettings(){
@@ -367,9 +595,10 @@ async function renderRoutine(routine, subroutines){
   (items||[]).forEach(it=>{
     const row = document.createElement('div');
     row.className = 'item-row' + (doneIds.has(it.id) ? ' done' : '');
-    row.innerHTML = `<input type="checkbox" ${doneIds.has(it.id)?'checked':''}> <span>${escapeHtml(it.text)}</span> <button class="rm">×</button>`;
+    row.innerHTML = `<input type="checkbox" ${doneIds.has(it.id)?'checked':''}> <span>${escapeHtml(it.text)}</span> <span class="muted" style="font-size:12px;">+${it.xp||10} XP</span> <button class="rm">×</button>`;
     row.querySelector('input').onchange = async (e) => {
-      if(e.target.checked) doneIds.add(it.id); else doneIds.delete(it.id);
+      const xpVal = it.xp || 10;
+      if(e.target.checked){ doneIds.add(it.id); adjustXp(xpVal); } else { doneIds.delete(it.id); adjustXp(-xpVal); }
       await saveCompletion(routine.id, today, [...doneIds]);
       renderRoutine(routine, subroutines);
     };
@@ -383,11 +612,12 @@ async function renderRoutine(routine, subroutines){
 
   const addRow = document.createElement('div');
   addRow.className = 'add-item';
-  addRow.innerHTML = `<input type="text" placeholder="Add a step…" id="newItemInput"><button>Add</button>`;
+  addRow.innerHTML = `<input type="text" placeholder="Add a step…" id="newItemInput"><input type="number" min="1" max="500" value="10" id="newItemXp" title="XP for this step"><button>Add</button>`;
   addRow.querySelector('button').onclick = async () => {
     const val = document.getElementById('newItemInput').value.trim();
+    const xpVal = parseInt(document.getElementById('newItemXp').value) || 10;
     if(!val) return;
-    await sb.from('routine_items').insert({routine_id: routine.id, text: val, position:(items||[]).length});
+    await sb.from('routine_items').insert({routine_id: routine.id, text: val, position:(items||[]).length, xp: xpVal});
     renderRoutine(routine, subroutines);
   };
   card.appendChild(addRow);
