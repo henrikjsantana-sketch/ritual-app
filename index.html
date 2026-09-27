@@ -5,61 +5,73 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ritual — Build Routines That Stick</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700&family=Poppins:wght@400;600;700&family=Comic+Neue:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700&family=Poppins:wght@400;600;700&family=Comic+Neue:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   :root{
-    --bg:#F2E9DA; --ink:#3A3226; --soft:#8A8072; --line:#E2D6BF;
-    --accent:#B5652F; --accent-dark:#96501F; --card:#FFFCF6; --card-alpha:rgba(255,252,246,.88);
-    --font-body:'Nunito',-apple-system,sans-serif;
+    --bg:#111010; --ink:#F3EFE6; --soft:#9C968A; --line:#2B2823;
+    --accent:#C9A227; --accent-dark:#A6841C; --card:#181614; --card-alpha:rgba(24,22,20,.92);
+    --font-body:'Inter',-apple-system,sans-serif;
+    --font-display:'Playfair Display',Georgia,serif;
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);min-height:100vh;background-size:cover;background-position:center;background-attachment:fixed;transition:background-color .3s;}
-  h1,h2,h3{font-family:'Quicksand',sans-serif;color:var(--ink);}
+  h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:.3px;}
+  .tagline{font-style:italic;}
   .wrap{max-width:640px;margin:0 auto;padding:40px 20px 80px;}
-  h1{font-size:30px;font-weight:700;margin:0 0 4px;}
+  h1{font-size:36px;font-weight:800;margin:0 0 4px;letter-spacing:.5px;}
   .tagline{color:var(--soft);margin:0 0 32px;font-size:15px;}
-  .card{background:var(--card-alpha);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:22px;padding:24px;margin-bottom:16px;}
-  label{display:block;font-size:13px;color:var(--soft);margin-bottom:4px;margin-top:14px;font-weight:600;}
-  input[type=text],input[type=email],input[type=password]{width:100%;padding:11px 16px;border:1px solid var(--line);border-radius:16px;font-size:15px;background:#FFFFFF;color:var(--ink);font-family:inherit;}
-  input[type=color]{width:48px;height:40px;border:1px solid var(--line);border-radius:12px;padding:2px;background:#fff;}
-  select{width:100%;padding:11px 16px;border:1px solid var(--line);border-radius:16px;font-size:15px;background:#FFFFFF;color:var(--ink);font-family:inherit;}
+  .card{background:var(--card-alpha);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:6px;padding:26px;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,0,0,.35);}
+  label{display:block;font-size:12px;color:var(--soft);margin-bottom:4px;margin-top:14px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;}
+  input[type=text],input[type=email],input[type=password]{width:100%;padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-size:15px;background:#0C0B0A;color:var(--ink);font-family:inherit;}
+  input[type=color]{width:48px;height:40px;border:1px solid var(--line);border-radius:4px;padding:2px;background:#fff;}
+  select{width:100%;padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-size:15px;background:#0C0B0A;color:var(--ink);font-family:inherit;}
   button{cursor:pointer;font-family:inherit;}
-  .btn-primary{background:var(--accent);color:#fff;border:none;border-radius:16px;padding:12px 18px;font-size:15px;font-weight:700;width:100%;margin-top:18px;}
+  .btn-primary{background:var(--accent);color:#15130F;border:none;border-radius:4px;padding:13px 18px;font-size:14px;font-weight:700;width:100%;margin-top:18px;text-transform:uppercase;letter-spacing:1px;}
   .btn-primary:hover{background:var(--accent-dark);}
   .btn-link{background:none;border:none;color:var(--accent);font-size:14px;padding:0;margin-top:14px;text-decoration:underline;}
-  .error{color:#A5432E;font-size:14px;margin-top:10px;}
+  .error{color:#D9756B;font-size:14px;margin-top:10px;}
   .tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:20px;padding-bottom:4px;}
-  .tab{flex-shrink:0;padding:9px 16px;border-radius:24px;border:1px solid var(--line);background:var(--card-alpha);font-size:14px;font-weight:600;color:var(--soft);}
-  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .tab{flex-shrink:0;padding:9px 16px;border-radius:4px;border:1px solid var(--line);background:var(--card-alpha);font-size:13px;font-weight:600;color:var(--soft);text-transform:uppercase;letter-spacing:.6px;}
+  .tab.active{background:var(--accent);color:#15130F;border-color:var(--accent);}
   .routine-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-  .streak{background:var(--bg);color:var(--accent);font-size:13px;padding:4px 12px;border-radius:20px;font-weight:700;}
+  .streak{background:var(--bg);color:var(--accent);font-size:13px;padding:4px 12px;border-radius:4px;font-weight:700;border:1px solid var(--line);}
   .item-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);}
   .item-row:last-child{border-bottom:none;}
-  .item-row input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent);flex-shrink:0;border-radius:8px;}
+  .item-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;border-radius:2px;}
   .item-row span{flex:1;font-size:15px;}
   .item-row.done span{color:var(--soft);text-decoration:line-through;}
   .rm{background:none;border:none;color:var(--soft);font-size:18px;}
   .add-item{display:flex;gap:8px;margin-top:12px;}
   .add-item input{flex:1;}
-  .add-item button{background:var(--accent);color:#fff;border:none;border-radius:16px;padding:9px 16px;font-weight:700;}
+  .add-item button{background:var(--accent);color:#15130F;border:none;border-radius:4px;padding:9px 16px;font-weight:700;}
   .sub-list{margin-top:10px;}
-  .sub-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;margin:4px 6px 0 0;border:1px solid var(--line);}
+  .sub-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);color:var(--ink);border-radius:4px;padding:6px 14px;font-size:13px;font-weight:600;margin:4px 6px 0 0;border:1px solid var(--line);}
   .new-sub{display:flex;gap:8px;margin-top:14px;}
   .new-sub input{flex:1;}
-  .new-sub button{background:var(--accent-dark);color:#fff;border:none;border-radius:16px;padding:9px 16px;font-weight:700;}
+  .new-sub button{background:var(--accent-dark);color:#15130F;border:none;border-radius:4px;padding:9px 16px;font-weight:700;}
   .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
-  .icon-btn{background:var(--card-alpha);border:1px solid var(--line);border-radius:14px;padding:8px 12px;font-size:16px;}
+  .icon-btn{background:var(--card-alpha);border:1px solid var(--line);border-radius:4px;padding:8px 12px;font-size:16px;}
   .signout{background:none;border:none;color:var(--soft);font-size:13px;text-decoration:underline;}
   .hidden{display:none;}
   .muted{color:var(--soft);font-size:14px;}
   .topbar-actions{display:flex;gap:10px;align-items:center;}
   .seg{display:flex;gap:6px;margin-top:10px;}
-  .seg button{flex:1;padding:8px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--soft);font-weight:600;font-size:13px;}
-  .seg button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-  .nav-main{display:flex;gap:18px;margin-bottom:24px;border-bottom:2px solid var(--line);padding-bottom:10px;flex-wrap:wrap;}
-  .nav-main button{background:none;border:none;color:var(--soft);font-weight:700;font-size:15px;padding:4px 2px;border-bottom:3px solid transparent;}
+  .seg button{flex:1;padding:8px;border-radius:4px;border:1px solid var(--line);background:var(--bg);color:var(--soft);font-weight:600;font-size:13px;}
+  .seg button.active{background:var(--accent);color:#15130F;border-color:var(--accent);}
+  .nav-main{display:flex;gap:24px;margin-bottom:24px;border-bottom:2px solid var(--line);padding-bottom:10px;flex-wrap:wrap;}
+  .nav-main button{background:none;border:none;color:var(--soft);font-weight:700;font-size:13px;padding:4px 2px;border-bottom:3px solid transparent;text-transform:uppercase;letter-spacing:1px;}
   .nav-main button.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .logo-wrap{display:flex;align-items:center;gap:12px;}
+  .logo-mark circle{stroke:var(--accent);}
+  .logo-mark path,.logo-mark text{fill:var(--accent);}
+  .hamburger{background:none;border:1px solid var(--line);border-radius:4px;padding:9px 11px;display:flex;flex-direction:column;gap:4px;}
+  .hamburger span{display:block;width:18px;height:2px;background:var(--ink);}
+  .nav-dropdown{position:relative;}
+  .nav-main{position:absolute;top:calc(100% + 8px);right:0;z-index:10;flex-direction:column;gap:0;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px;min-width:180px;box-shadow:0 12px 32px rgba(0,0,0,.5);border-bottom:1px solid var(--line);}
+  .nav-main button{padding:10px 12px;border-bottom:none !important;text-align:left;width:100%;border-radius:4px;}
+  .nav-main button.active{background:rgba(201,162,39,.12);}
+  .nav-main button:hover{background:rgba(255,255,255,.04);}
   .lb-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);}
   .lb-row:last-child{border-bottom:none;}
   .lb-rank{font-weight:700;color:var(--soft);width:32px;}
@@ -75,7 +87,13 @@
 <div class="wrap">
 
   <div id="authView">
-    <h1>Ritual</h1>
+    <div class="logo-wrap">
+      <svg class="logo-mark" viewBox="0 0 40 40" width="34" height="34" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="17" fill="none" stroke-width="2"/>
+        <text x="20" y="27" font-family="Playfair Display, serif" font-size="19" font-weight="700" text-anchor="middle">R</text>
+      </svg>
+      <h1 style="margin:0;">Ritual</h1>
+    </div>
     <p class="tagline">Small routines, done daily, become who you are.</p>
     <div class="card">
       <h2 id="authTitle" style="margin:0;font-size:18px;">Log in</h2>
@@ -103,13 +121,28 @@
 
   <div id="appView" class="hidden">
     <div class="topbar">
-      <div>
-        <h1 style="margin-bottom:0;">Ritual</h1>
-        <span class="muted" id="whoami"></span>
+      <div class="logo-wrap">
+        <svg class="logo-mark" viewBox="0 0 40 40" width="30" height="30" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="17" fill="none" stroke-width="2"/>
+          <text x="20" y="27" font-family="Playfair Display, serif" font-size="19" font-weight="700" text-anchor="middle">R</text>
+        </svg>
+        <div>
+          <h1 style="margin-bottom:0;font-size:24px;">Ritual</h1>
+          <span class="muted" id="whoami"></span>
+        </div>
       </div>
       <div class="topbar-actions">
         <button class="icon-btn" id="customizeBtn" title="Customize look">🎨</button>
         <button class="signout" id="signout">Log out</button>
+        <div class="nav-dropdown">
+          <button class="hamburger" id="navToggle" title="Menu"><span></span><span></span><span></span></button>
+          <div class="nav-main hidden" id="mainNav">
+            <button data-view="home" class="active">Home</button>
+            <button data-view="routines">Routines</button>
+            <button data-view="leaderboard">Leaderboard</button>
+            <button data-view="about">About</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -147,13 +180,6 @@
       <input type="text" id="usernameInput" placeholder="e.g. alex_runs">
       <button class="btn-primary" id="usernameSubmit">Save username</button>
       <div class="error hidden" id="usernameError"></div>
-    </div>
-
-    <div class="nav-main" id="mainNav">
-      <button data-view="home" class="active">Home</button>
-      <button data-view="routines">Routines</button>
-      <button data-view="leaderboard">Leaderboard</button>
-      <button data-view="about">About</button>
     </div>
 
     <div id="homeView"></div>
@@ -344,8 +370,14 @@ async function adjustXp(delta){
 }
 
 function setupNav(){
+  $('navToggle').onclick = () => $('mainNav').classList.toggle('hidden');
   document.querySelectorAll('#mainNav button').forEach(b=>{
-    b.onclick = () => showView(b.dataset.view);
+    b.onclick = () => { showView(b.dataset.view); $('mainNav').classList.add('hidden'); };
+  });
+  document.addEventListener('click', (e)=>{
+    if(!$('mainNav').classList.contains('hidden') && !e.target.closest('.nav-dropdown')){
+      $('mainNav').classList.add('hidden');
+    }
   });
 }
 
