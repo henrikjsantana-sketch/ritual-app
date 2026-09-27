@@ -9,15 +9,22 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   :root{
-    --bg:#111010; --ink:#F3EFE6; --soft:#9C968A; --line:#2B2823;
-    --accent:#C9A227; --accent-dark:#A6841C; --card:#181614; --card-alpha:rgba(24,22,20,.92);
+    --bg:#0B0C0E; --ink:#EDEEF0; --soft:#7B818C; --line:#1E2126;
+    --accent:#3E7BFA; --accent-dark:#2F5FD1; --card:#121317; --card-alpha:rgba(18,19,23,.92);
+    --good:#33B27A;
     --font-body:'Inter',-apple-system,sans-serif;
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);min-height:100vh;background-size:cover;background-position:center;background-attachment:fixed;transition:background-color .3s;}
   h1,h2,h3{font-family:var(--font-body);color:var(--ink);letter-spacing:.2px;font-weight:800;}
   .tagline{font-style:normal;}
-  .wrap{max-width:640px;margin:0 auto;padding:40px 20px 80px;}
+  .wrap{max-width:880px;margin:0 auto;padding:40px 24px 80px;}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:16px;}
+  .stat-card{background:var(--card-alpha);border:1px solid var(--line);border-radius:6px;padding:18px;}
+  .stat-card .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--soft);margin-bottom:8px;}
+  .stat-card .stat-value{font-size:26px;font-weight:800;}
+  .stat-card .stat-value.good{color:var(--good);}
+  .stat-card .stat-value.accent{color:var(--accent);}
   h1{font-size:36px;font-weight:800;margin:0 0 4px;letter-spacing:.5px;}
   .tagline{color:var(--soft);margin:0 0 32px;font-size:15px;}
   .card{background:var(--card-alpha);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:6px;padding:26px;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,0,0,.35);}
@@ -26,13 +33,13 @@
   input[type=color]{width:48px;height:40px;border:1px solid var(--line);border-radius:4px;padding:2px;background:#fff;}
   select{width:100%;padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-size:15px;background:#0C0B0A;color:var(--ink);font-family:inherit;}
   button{cursor:pointer;font-family:inherit;}
-  .btn-primary{background:var(--accent);color:#15130F;border:none;border-radius:4px;padding:13px 18px;font-size:14px;font-weight:700;width:100%;margin-top:18px;text-transform:uppercase;letter-spacing:1px;}
+  .btn-primary{background:var(--accent);color:#FFFFFF;border:none;border-radius:4px;padding:13px 18px;font-size:14px;font-weight:700;width:100%;margin-top:18px;text-transform:uppercase;letter-spacing:1px;}
   .btn-primary:hover{background:var(--accent-dark);}
   .btn-link{background:none;border:none;color:var(--accent);font-size:14px;padding:0;margin-top:14px;text-decoration:underline;}
   .error{color:#D9756B;font-size:14px;margin-top:10px;}
   .tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:20px;padding-bottom:4px;}
   .tab{flex-shrink:0;padding:9px 16px;border-radius:4px;border:1px solid var(--line);background:var(--card-alpha);font-size:13px;font-weight:600;color:var(--soft);text-transform:uppercase;letter-spacing:.6px;}
-  .tab.active{background:var(--accent);color:#15130F;border-color:var(--accent);}
+  .tab.active{background:var(--accent);color:#FFFFFF;border-color:var(--accent);}
   .routine-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
   .streak{background:var(--bg);color:var(--accent);font-size:13px;padding:4px 12px;border-radius:4px;font-weight:700;border:1px solid var(--line);}
   .item-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);}
@@ -43,21 +50,21 @@
   .rm{background:none;border:none;color:var(--soft);font-size:18px;}
   .add-item{display:flex;gap:8px;margin-top:12px;}
   .add-item input{flex:1;}
-  .add-item button{background:var(--accent);color:#15130F;border:none;border-radius:4px;padding:9px 16px;font-weight:700;}
+  .add-item button{background:var(--accent);color:#FFFFFF;border:none;border-radius:4px;padding:9px 16px;font-weight:700;}
   .sub-list{margin-top:10px;}
   .sub-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);color:var(--ink);border-radius:4px;padding:6px 14px;font-size:13px;font-weight:600;margin:4px 6px 0 0;border:1px solid var(--line);}
   .new-sub{display:flex;gap:8px;margin-top:14px;}
   .new-sub input{flex:1;}
-  .new-sub button{background:var(--accent-dark);color:#15130F;border:none;border-radius:4px;padding:9px 16px;font-weight:700;}
+  .new-sub button{background:var(--accent-dark);color:#FFFFFF;border:none;border-radius:4px;padding:9px 16px;font-weight:700;}
   .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
   .icon-btn{background:var(--card-alpha);border:1px solid var(--line);border-radius:4px;padding:8px 12px;font-size:16px;}
   .signout{background:none;border:none;color:var(--soft);font-size:13px;text-decoration:underline;}
-  .hidden{display:none;}
+  .hidden{display:none !important;}
   .muted{color:var(--soft);font-size:14px;}
   .topbar-actions{display:flex;gap:10px;align-items:center;}
   .seg{display:flex;gap:6px;margin-top:10px;}
   .seg button{flex:1;padding:8px;border-radius:4px;border:1px solid var(--line);background:var(--bg);color:var(--soft);font-weight:600;font-size:13px;}
-  .seg button.active{background:var(--accent);color:#15130F;border-color:var(--accent);}
+  .seg button.active{background:var(--accent);color:#FFFFFF;border-color:var(--accent);}
   .nav-main{display:flex;gap:24px;margin-bottom:24px;border-bottom:2px solid var(--line);padding-bottom:10px;flex-wrap:wrap;}
   .nav-main button{background:none;border:none;color:var(--soft);font-weight:700;font-size:13px;padding:4px 2px;border-bottom:3px solid transparent;text-transform:uppercase;letter-spacing:1px;}
   .nav-main button.active{color:var(--accent);border-bottom-color:var(--accent);}
@@ -364,7 +371,7 @@ async function ensureProfile(){
 
 function renderProfileBadge(){
   const t = getTitleFor(myProfile.total_xp);
-  $('whoami').innerHTML = `${t.icon} <strong>${escapeHtml(myProfile.username)}</strong> · ${t.title} · ${myProfile.total_xp} XP`;
+  $('whoami').innerHTML = `<strong>${escapeHtml(myProfile.username)}</strong> · <span style="color:var(--accent);font-weight:700;">${t.title}</span> · ${myProfile.total_xp} XP`;
 }
 
 async function adjustXp(delta){
@@ -399,13 +406,28 @@ function showView(view){
 
 function renderHome(){
   const t = getTitleFor(myProfile.total_xp);
+  const nextTier = TITLES.find(x=>x.min > myProfile.total_xp);
   $('homeView').innerHTML = `
-    <div class="card">
-      <h2 style="margin:0 0 6px;">Welcome back, ${escapeHtml(myProfile.username)}</h2>
-      <p class="muted" style="margin:0;">${t.icon} ${t.title} · ${myProfile.total_xp} total XP</p>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total XP</div>
+        <div class="stat-value accent">${myProfile.total_xp}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Current tier</div>
+        <div class="stat-value">${t.title}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active routines</div>
+        <div class="stat-value good">${routinesList.length}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Next tier at</div>
+        <div class="stat-value">${nextTier ? nextTier.min + ' XP' : '—'}</div>
+      </div>
     </div>
     <div class="card">
-      <p class="muted" style="margin:0;">Head to <strong>Routines</strong> to check off today's steps and earn XP, or check the <strong>Leaderboard</strong> to see how you stack up against friends.</p>
+      <p class="muted" style="margin:0;">Welcome back, <strong>${escapeHtml(myProfile.username)}</strong>. Head to <strong>Routines</strong> to check off today's steps, <strong>Tasks</strong> for one-off items, or check the <strong>Leaderboard</strong> to see how you compare to friends.</p>
     </div>
   `;
 }
@@ -539,7 +561,7 @@ async function loadLeaderboard(mode){
       const t = getTitleFor(r.total_xp);
       const row = document.createElement('div');
       row.className = 'lb-row';
-      row.innerHTML = `<span class="lb-rank">#${i+1}</span><span class="lb-name">${t.icon} ${escapeHtml(r.username)}${r.user_id===session.user.id ? ' (you)' : ''}</span><span class="lb-xp">${r.total_xp} XP</span>`;
+      row.innerHTML = `<span class="lb-rank">#${i+1}</span><span class="lb-name">${escapeHtml(r.username)}${r.user_id===session.user.id ? ' (you)' : ''} <span class="muted" style="font-size:12px;">${t.title}</span></span><span class="lb-xp">${r.total_xp} XP</span>`;
       card.appendChild(row);
     });
   }
@@ -737,7 +759,7 @@ async function renderRoutine(routine, subroutines){
   card.innerHTML = `
     <div class="routine-header">
       <h2 style="margin:0;font-size:18px;">${escapeHtml(routine.name)}</h2>
-      <span class="streak">🔥 ${streak} day${streak===1?'':'s'}</span>
+      <span class="streak">${streak} day${streak===1?'':'s'} streak</span>
     </div>
     <div style="display:flex;gap:16px;margin:2px 0 10px;">
       <button class="btn-link" id="renameRoutineBtn" style="margin:0;">Rename</button>
