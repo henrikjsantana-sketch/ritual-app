@@ -5,24 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ritual — Build Routines That Stick</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Manrope:wght@500;600;700;800&family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700&family=Poppins:wght@400;600;700&family=Comic+Neue:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Manrope:wght@500;600;700;800&family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700&family=Poppins:wght@400;600;700&family=Comic+Neue:wght@400;700&family=Merriweather:wght@400;700&family=Sora:wght@500;600;700&family=Playfair+Display:wght@600;700&family=Work+Sans:wght@400;600;700&family=DM+Sans:wght@500;600;700&family=Lora:wght@500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   :root{
-    --bg:#0A0A0D; --ink:#EDEDF2; --soft:#8B8798; --line:#211F27;
-    --accent:#6C63FF; --accent-dark:#5449E0; --gold:#E3B341; --good:#34C77B;
-    --card:#131217; --card-alpha:rgba(19,18,23,.92);
+    --bg:#0A0A0C; --ink:#F2F0EC; --soft:#8D897F; --line:#232019;
+    --accent:#E8622C; --accent-dark:#C24E20; --gold:#E3B341; --good:#34C77B;
+    --card:#141215; --card-alpha:rgba(20,18,21,.82); --input-bg:#17151A;
     --font-body:'Inter',-apple-system,sans-serif;
     --font-display:'Space Grotesk',var(--font-body);
     --font-mono:'IBM Plex Mono',monospace;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);min-height:100vh;background-size:cover;background-position:center;background-attachment:fixed;transition:background-color .3s;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);min-height:100vh;background-size:cover;background-position:center;background-attachment:fixed;transition:background-color .3s;position:relative;}
+  body::before{content:"";position:fixed;top:-12%;left:-12%;width:55%;height:55%;background:radial-gradient(circle,var(--accent) 0%,transparent 70%);opacity:.14;filter:blur(70px);z-index:-1;pointer-events:none;}
+  body::after{content:"";position:fixed;bottom:-15%;right:-12%;width:55%;height:55%;background:radial-gradient(circle,#6C63FF 0%,transparent 70%);opacity:.12;filter:blur(80px);z-index:-1;pointer-events:none;}
   h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:.1px;font-weight:700;}
   .tagline{font-style:normal;}
-  .wrap{max-width:880px;margin:0 auto;padding:40px 24px 80px;}
+  .wrap{max-width:880px;margin:0 auto;padding:40px 24px 80px;position:relative;z-index:1;}
   .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:16px;}
-  .stat-card{background:linear-gradient(155deg,var(--card-alpha),rgba(108,99,255,.07));border:1px solid var(--line);border-radius:8px;padding:18px;}
+  .stat-card{background:linear-gradient(155deg,var(--card-alpha),rgba(232,98,44,.08));border:1px solid var(--line);border-radius:14px;padding:18px;}
   .stat-card .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--soft);margin-bottom:8px;}
   .stat-card .stat-value{font-family:var(--font-mono);font-size:26px;font-weight:700;}
   .stat-card .stat-value.good{color:var(--good);}
@@ -35,45 +37,56 @@
   .tier-row:last-child{border-bottom:none;}
   .tier-row.unlocked .tier-name{color:var(--gold);font-weight:700;}
   .tier-row .tier-req{color:var(--soft);font-family:var(--font-mono);font-size:13px;}
+  .roadmap{display:flex;flex-direction:column;padding-left:4px;}
+  .roadmap-node{display:flex;align-items:center;gap:14px;position:relative;padding:12px 0;}
+  .roadmap-node:not(:last-child)::before{content:"";position:absolute;left:19px;top:52px;width:2px;height:calc(100% - 24px);background:var(--line);}
+  .roadmap-node.unlocked:not(:last-child)::before{background:var(--gold);}
+  .node-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--card);border:2px solid var(--line);flex-shrink:0;z-index:1;color:var(--soft);}
+  .roadmap-node.unlocked .node-icon{border-color:var(--gold);background:rgba(227,179,65,.14);color:var(--gold);cursor:pointer;}
+  .roadmap-node.unlocked .node-icon:hover{transform:scale(1.1);}
+  .roadmap-node.selected .node-icon{box-shadow:0 0 0 3px rgba(227,179,65,.35);}
+  .node-info{flex:1;}
+  .node-title{font-weight:700;font-size:14px;}
+  .node-req{color:var(--soft);font-size:12px;font-family:var(--font-mono);}
   h1{font-size:36px;font-weight:800;margin:0 0 4px;letter-spacing:.5px;}
   .tagline{color:var(--soft);margin:0 0 32px;font-size:15px;}
-  .card{background:var(--card-alpha);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:6px;padding:26px;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,0,0,.35);}
+  .card{background:var(--card-alpha);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:14px;padding:26px;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,0,0,.35);}
   label{display:block;font-size:12px;color:var(--soft);margin-bottom:4px;margin-top:14px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;}
-  input[type=text],input[type=email],input[type=password]{width:100%;padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-size:15px;background:#0C0B0A;color:var(--ink);font-family:inherit;}
-  input[type=color]{width:48px;height:40px;border:1px solid var(--line);border-radius:4px;padding:2px;background:#fff;}
-  select{width:100%;padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-size:15px;background:#0C0B0A;color:var(--ink);font-family:inherit;}
+  input[type=text],input[type=email],input[type=password]{width:100%;padding:11px 16px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:var(--input-bg);color:var(--ink);font-family:inherit;}
+  input[type=color]{width:48px;height:40px;border:1px solid var(--line);border-radius:8px;padding:2px;background:#fff;}
+  select{width:100%;padding:11px 16px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:var(--input-bg);color:var(--ink);font-family:inherit;}
   button{cursor:pointer;font-family:inherit;}
-  .btn-primary{background:var(--accent);color:#FFFFFF;border:none;border-radius:4px;padding:13px 18px;font-size:14px;font-weight:700;width:100%;margin-top:18px;text-transform:uppercase;letter-spacing:1px;}
+  .btn-primary{background:var(--accent);color:#FFFFFF;border:none;border-radius:10px;padding:13px 18px;font-size:14px;font-weight:700;width:100%;margin-top:18px;text-transform:uppercase;letter-spacing:1px;}
   .btn-primary:hover{background:var(--accent-dark);}
   .btn-link{background:none;border:none;color:var(--accent);font-size:14px;padding:0;margin-top:14px;text-decoration:underline;}
   .error{color:#D9756B;font-size:14px;margin-top:10px;}
   .tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:20px;padding-bottom:4px;}
-  .tab{flex-shrink:0;padding:9px 16px;border-radius:4px;border:1px solid var(--line);background:var(--card-alpha);font-size:13px;font-weight:600;color:var(--soft);text-transform:uppercase;letter-spacing:.6px;}
+  .tab{flex-shrink:0;padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--card-alpha);font-size:13px;font-weight:600;color:var(--soft);text-transform:uppercase;letter-spacing:.6px;}
   .tab.active{background:var(--accent);color:#FFFFFF;border-color:var(--accent);}
   .routine-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-  .streak{background:var(--bg);color:var(--accent);font-size:13px;padding:4px 12px;border-radius:4px;font-weight:700;border:1px solid var(--line);}
+  .streak{background:var(--bg);color:var(--accent);font-size:13px;padding:4px 12px;border-radius:8px;font-weight:700;border:1px solid var(--line);}
   .item-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);}
   .item-row:last-child{border-bottom:none;}
-  .item-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;border-radius:2px;}
+  .item-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;border-radius:4px;}
   .item-row span{flex:1;font-size:15px;}
   .item-row.done span{color:var(--soft);text-decoration:line-through;}
   .rm{background:none;border:none;color:var(--soft);font-size:18px;}
   .add-item{display:flex;gap:8px;margin-top:12px;}
   .add-item input{flex:1;}
-  .add-item button{background:var(--accent);color:#FFFFFF;border:none;border-radius:4px;padding:9px 16px;font-weight:700;}
+  .add-item button{background:var(--accent);color:#FFFFFF;border:none;border-radius:10px;padding:9px 16px;font-weight:700;}
   .sub-list{margin-top:10px;}
-  .sub-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);color:var(--ink);border-radius:4px;padding:6px 14px;font-size:13px;font-weight:600;margin:4px 6px 0 0;border:1px solid var(--line);}
+  .sub-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);color:var(--ink);border-radius:10px;padding:6px 14px;font-size:13px;font-weight:600;margin:4px 6px 0 0;border:1px solid var(--line);}
   .new-sub{display:flex;gap:8px;margin-top:14px;}
   .new-sub input{flex:1;}
-  .new-sub button{background:var(--accent-dark);color:#FFFFFF;border:none;border-radius:4px;padding:9px 16px;font-weight:700;}
+  .new-sub button{background:var(--accent-dark);color:#FFFFFF;border:none;border-radius:10px;padding:9px 16px;font-weight:700;}
   .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
-  .icon-btn{background:var(--card-alpha);border:1px solid var(--line);border-radius:4px;padding:8px 12px;font-size:16px;}
+  .icon-btn{background:var(--card-alpha);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:16px;}
   .signout{background:none;border:none;color:var(--soft);font-size:13px;text-decoration:underline;}
   .hidden{display:none !important;}
   .muted{color:var(--soft);font-size:14px;}
   .topbar-actions{display:flex;gap:10px;align-items:center;}
   .seg{display:flex;gap:6px;margin-top:10px;}
-  .seg button{flex:1;padding:8px;border-radius:4px;border:1px solid var(--line);background:var(--bg);color:var(--soft);font-weight:600;font-size:13px;}
+  .seg button{flex:1;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--soft);font-weight:600;font-size:13px;}
   .seg button.active{background:var(--accent);color:#FFFFFF;border-color:var(--accent);}
   .nav-main{display:flex;gap:24px;margin-bottom:24px;border-bottom:2px solid var(--line);padding-bottom:10px;flex-wrap:wrap;}
   .nav-main button{background:none;border:none;color:var(--soft);font-weight:700;font-size:13px;padding:4px 2px;border-bottom:3px solid transparent;text-transform:uppercase;letter-spacing:1px;}
@@ -81,12 +94,12 @@
   .logo-wrap{display:flex;align-items:center;gap:12px;}
   .logo-mark circle{stroke:var(--accent);}
   .logo-mark path,.logo-mark text{fill:var(--accent);}
-  .hamburger{background:none;border:1px solid var(--line);border-radius:4px;padding:9px 11px;display:flex;flex-direction:column;gap:4px;}
+  .hamburger{background:none;border:1px solid var(--line);border-radius:8px;padding:9px 11px;display:flex;flex-direction:column;gap:4px;}
   .hamburger span{display:block;width:18px;height:2px;background:var(--ink);}
   .nav-dropdown{position:relative;}
-  .nav-main{position:absolute;top:calc(100% + 8px);right:0;z-index:10;flex-direction:column;gap:0;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px;min-width:180px;box-shadow:0 12px 32px rgba(0,0,0,.5);border-bottom:1px solid var(--line);}
-  .nav-main button{padding:10px 12px;border-bottom:none !important;text-align:left;width:100%;border-radius:4px;}
-  .nav-main button.active{background:rgba(201,162,39,.12);}
+  .nav-main{position:absolute;top:calc(100% + 8px);right:0;z-index:10;flex-direction:column;gap:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px;min-width:180px;box-shadow:0 12px 32px rgba(0,0,0,.5);border-bottom:1px solid var(--line);}
+  .nav-main button{padding:10px 12px;border-bottom:none !important;text-align:left;width:100%;border-radius:8px;}
+  .nav-main button.active{background:rgba(232,98,44,.14);}
   .nav-main button:hover{background:rgba(255,255,255,.04);}
   .lb-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);}
   .lb-row:last-child{border-bottom:none;}
@@ -98,6 +111,23 @@
   .pending-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;}
   .add-item input[type=number]{width:64px;flex:none;text-align:center;}
   .add-item select{width:auto;flex:none;}
+
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  #homeView,#routinesView,#tasksView,#statsView,#leaderboardView,#aboutView{animation:fadeInUp .35s ease;}
+  .card{transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;}
+  .card:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(0,0,0,.45);border-color:rgba(232,98,44,.3);}
+  button{transition:transform .12s ease,background-color .15s ease,opacity .15s ease;}
+  .btn-primary:active,.add-item button:active,.new-sub button:active{transform:scale(.96);}
+  .tab,.icon-btn,.hamburger{transition:transform .12s ease,background-color .15s ease,border-color .15s ease;}
+  .tab:hover{border-color:var(--accent);}
+  .tab:active,.icon-btn:active,.hamburger:active{transform:scale(.94);}
+  @keyframes popCheck{0%{transform:scale(1);}45%{transform:scale(1.3);}100%{transform:scale(1);}}
+  .item-row input[type=checkbox]:checked{animation:popCheck .28s ease;}
+  .progress-fill{transition:width .5s cubic-bezier(.2,.8,.2,1);}
+  #toastContainer{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:280px;}
+  @keyframes toastIn{from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:translateX(0);}}
+  @keyframes toastOut{to{opacity:0;transform:translateX(24px);}}
+  .toast{background:linear-gradient(135deg,var(--card),rgba(232,98,44,.15));border:1px solid var(--accent);border-radius:10px;padding:14px 18px;box-shadow:0 12px 32px rgba(0,0,0,.5);font-size:14px;font-weight:600;animation:toastIn .3s ease,toastOut .3s ease 2.7s forwards;}
 </style>
 </head>
 <body>
@@ -182,13 +212,24 @@
       <input type="color" id="accentInput" value="#B5652F">
       <label>Text color</label>
       <input type="color" id="textColorInput" value="#3A3226">
+      <label>Input box color</label>
+      <input type="color" id="inputBgInput" value="#17151A">
       <label>Font</label>
       <select id="fontInput">
+        <option value="Inter" selected>Inter (clean, professional)</option>
+        <option value="Space Grotesk">Space Grotesk (modern, technical)</option>
+        <option value="Sora">Sora (crisp, contemporary)</option>
+        <option value="Work Sans">Work Sans (neutral, versatile)</option>
+        <option value="DM Sans">DM Sans (geometric, friendly)</option>
+        <option value="Manrope">Manrope (modern sans)</option>
         <option value="Nunito">Nunito (rounded)</option>
         <option value="Quicksand">Quicksand (rounded)</option>
         <option value="Poppins">Poppins (clean)</option>
         <option value="Comic Neue">Comic Neue (playful)</option>
         <option value="Merriweather">Merriweather (serif)</option>
+        <option value="Playfair Display">Playfair Display (dramatic serif)</option>
+        <option value="Lora">Lora (elegant serif)</option>
+        <option value="JetBrains Mono">JetBrains Mono (monospace)</option>
       </select>
       <button class="btn-primary" id="saveCustomize">Save look</button>
     </div>
@@ -217,6 +258,8 @@
     <div id="aboutView" class="hidden"></div>
   </div>
 
+  <div id="toastContainer"></div>
+
 </div>
 
 <script>
@@ -234,9 +277,17 @@ const CATS = [
 let session = null;
 let routinesList = [];
 let activeRoutineId = null;
+let expandedSubs = new Set();
 let signupMode = false;
 
 const DIFFICULTY_XP = {easy:5, medium:15, hard:30};
+
+function localDateStr(d = new Date()){
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${yyyy}-${mm}-${dd}`;
+}
 
 const $ = id => document.getElementById(id);
 
@@ -318,16 +369,16 @@ $('signout').onclick = async () => {
   $('authView').classList.remove('hidden');
 };
 
-let currentSettings = {bg_type:'color', bg_value:'#F2E9DA', accent:'#B5652F', text_color:'#3A3226', font:'Nunito'};
+let currentSettings = {bg_type:'color', bg_value:'#0A0A0C', accent:'#E8622C', text_color:'#F2F0EC', font:'Inter', input_bg:'#17151A'};
 
 const TITLES = [
-  {min:0, title:"Newcomer"},
-  {min:500, title:"Apprentice"},
-  {min:1500, title:"Committed"},
-  {min:4000, title:"Disciplined"},
-  {min:9000, title:"Elite"},
-  {min:20000, title:"Master"},
-  {min:50000, title:"Legend"},
+  {min:0, title:"Newcomer", icon:"○"},
+  {min:500, title:"Apprentice", icon:"◇"},
+  {min:1500, title:"Committed", icon:"◈"},
+  {min:4000, title:"Disciplined", icon:"◆"},
+  {min:9000, title:"Elite", icon:"✦"},
+  {min:20000, title:"Master", icon:"★"},
+  {min:50000, title:"Legend", icon:"♛"},
 ];
 function getTitleFor(xp){
   let t = TITLES[0];
@@ -388,14 +439,31 @@ async function ensureProfile(){
 function renderProfileBadge(){
   const t = getTitleFor(myProfile.total_xp);
   const lvl = getLevel(myProfile.total_xp);
-  $('whoami').innerHTML = `<strong>${escapeHtml(myProfile.username)}</strong> · Lvl ${lvl} · <span style="color:var(--gold);font-weight:700;">${t.title}</span>`;
+  const icon = myProfile.icon || t.icon;
+  $('whoami').innerHTML = `<span style="color:var(--gold);">${icon}</span> <strong>${escapeHtml(myProfile.username)}</strong> · Lvl ${lvl} · <span style="color:var(--gold);font-weight:700;">${t.title}</span>`;
+}
+
+function showToast(msg){
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  $('toastContainer').appendChild(t);
+  setTimeout(()=>t.remove(), 3000);
 }
 
 async function adjustXp(delta){
   if(!myProfile) return;
+  const prevLevel = getLevel(myProfile.total_xp);
+  const prevTier = getTitleFor(myProfile.total_xp).title;
   myProfile.total_xp = Math.max(0, myProfile.total_xp + delta);
   await sb.from('profiles').update({total_xp: myProfile.total_xp}).eq('user_id', session.user.id);
   renderProfileBadge();
+  if(delta > 0){
+    const newLevel = getLevel(myProfile.total_xp);
+    const newTier = getTitleFor(myProfile.total_xp).title;
+    if(newLevel > prevLevel) showToast(`Level up — you reached Level ${newLevel}`);
+    if(newTier !== prevTier) showToast(`Tier unlocked: ${newTier}`);
+  }
 }
 
 function setupNav(){
@@ -458,11 +526,15 @@ function renderStats(){
   const tierSpan = nextTier ? (nextTier.min - tier.min) : 1;
   const tierProgress = nextTier ? Math.min(100, Math.round(((xp - tier.min) / tierSpan) * 100)) : 100;
 
-  const tierRows = TITLES.map(t=>{
+  const roadmapNodes = TITLES.map(t=>{
     const unlocked = xp >= t.min;
-    return `<div class="tier-row ${unlocked?'unlocked':''}">
-      <span class="tier-name">${escapeHtml(t.title)}</span>
-      <span class="tier-req">${unlocked ? 'Unlocked' : (t.min - xp) + ' XP to go'}</span>
+    const isSelected = (myProfile.icon || tier.icon) === t.icon;
+    return `<div class="roadmap-node ${unlocked?'unlocked':''} ${isSelected?'selected':''}">
+      <button class="node-icon" data-icon="${t.icon}" ${unlocked?'':'disabled'} title="${unlocked ? 'Use this icon' : t.title+' — locked'}">${unlocked ? t.icon : '🔒'}</button>
+      <div class="node-info">
+        <div class="node-title">${escapeHtml(t.title)}</div>
+        <div class="node-req">${unlocked ? 'Unlocked · ' + t.min + ' XP' : (t.min - xp) + ' XP to go'}</div>
+      </div>
     </div>`;
   }).join('');
 
@@ -478,10 +550,21 @@ function renderStats(){
       <p class="muted" style="margin:8px 0 0;font-family:var(--font-mono);font-size:13px;">${nextTier ? (nextTier.min - xp) + ' XP to ' + nextTier.title : 'Highest tier reached'}</p>
     </div>
     <div class="card">
-      <h3 style="margin:0 0 8px;font-size:15px;">Tier roadmap</h3>
-      ${tierRows}
+      <h3 style="margin:0 0 4px;font-size:15px;">Your path</h3>
+      <p class="muted" style="margin:0 0 6px;">Tap an unlocked icon to wear it next to your name.</p>
+      <div class="roadmap" id="roadmapEl">${roadmapNodes}</div>
     </div>
   `;
+
+  document.querySelectorAll('#roadmapEl .node-icon:not([disabled])').forEach(btn=>{
+    btn.onclick = async () => {
+      const icon = btn.dataset.icon;
+      myProfile.icon = icon;
+      await sb.from('profiles').update({icon}).eq('user_id', session.user.id);
+      renderProfileBadge();
+      renderStats();
+    };
+  });
 }
 
 function renderAbout(){
@@ -613,7 +696,7 @@ async function loadLeaderboard(mode){
       const t = getTitleFor(r.total_xp);
       const row = document.createElement('div');
       row.className = 'lb-row';
-      row.innerHTML = `<span class="lb-rank">#${i+1}</span><span class="lb-name">${escapeHtml(r.username)}${r.user_id===session.user.id ? ' (you)' : ''} <span class="muted" style="font-size:12px;">${t.title}</span></span><span class="lb-xp">${r.total_xp} XP</span>`;
+      row.innerHTML = `<span class="lb-rank">#${i+1}</span><span class="lb-name"><span style="color:var(--gold);">${r.icon || t.icon}</span> ${escapeHtml(r.username)}${r.user_id===session.user.id ? ' (you)' : ''} <span class="muted" style="font-size:12px;">${t.title}</span></span><span class="lb-xp">${r.total_xp} XP</span>`;
       card.appendChild(row);
     });
   }
@@ -683,9 +766,10 @@ function applySettings(s){
     document.body.style.backgroundColor = '';
   } else {
     document.body.style.backgroundImage = 'none';
-    document.body.style.backgroundColor = s.bg_value || '#F2E9DA';
-    root.setProperty('--bg', s.bg_value || '#F2E9DA');
+    document.body.style.backgroundColor = s.bg_value || '#0A0A0C';
+    root.setProperty('--bg', s.bg_value || '#0A0A0C');
   }
+  root.setProperty('--input-bg', s.input_bg || '#17151A');
 }
 
 function shade(hex){
@@ -697,11 +781,12 @@ function shade(hex){
 function setupCustomizeUI(){
   $('customizeBtn').onclick = () => {
     $('customizePanel').classList.toggle('hidden');
-    $('bgColorInput').value = currentSettings.bg_type==='color' ? currentSettings.bg_value : '#F2E9DA';
+    $('bgColorInput').value = currentSettings.bg_type==='color' ? currentSettings.bg_value : '#0A0A0C';
     $('bgImageInput').value = currentSettings.bg_type==='image' ? currentSettings.bg_value : '';
     $('accentInput').value = currentSettings.accent;
-    $('textColorInput').value = currentSettings.text_color || '#3A3226';
-    $('fontInput').value = currentSettings.font || 'Nunito';
+    $('textColorInput').value = currentSettings.text_color || '#F2F0EC';
+    $('inputBgInput').value = currentSettings.input_bg || '#17151A';
+    $('fontInput').value = currentSettings.font || 'Inter';
     setBgTypeUI(currentSettings.bg_type);
   };
   document.querySelectorAll('#bgTypeSeg button').forEach(b=>{
@@ -712,8 +797,9 @@ function setupCustomizeUI(){
     const value = type==='image' ? $('bgImageInput').value.trim() : $('bgColorInput').value;
     const accent = $('accentInput').value;
     const text_color = $('textColorInput').value;
+    const input_bg = $('inputBgInput').value;
     const font = $('fontInput').value;
-    currentSettings = {user_id: session.user.id, bg_type:type, bg_value:value, accent, text_color, font};
+    currentSettings = {user_id: session.user.id, bg_type:type, bg_value:value, accent, text_color, input_bg, font};
     await sb.from('user_settings').upsert(currentSettings);
     applySettings(currentSettings);
     $('customizePanel').classList.add('hidden');
@@ -785,6 +871,7 @@ async function createNewRoutine(){
 
 async function loadRoutine(routineId){
   $('routineArea').innerHTML = '<p class="muted">Loading…</p>';
+  expandedSubs.clear();
   const routine = routinesList.find(r=>r.id===routineId);
   if(!routine){ $('routineArea').innerHTML = '<p class="muted">No routines yet — create one above.</p>'; return; }
 
@@ -796,7 +883,7 @@ async function loadRoutine(routineId){
 
 async function renderRoutine(routine, subroutines){
   const {data: items} = await sb.from('routine_items').select('*').eq('routine_id', routine.id).order('position');
-  const today = new Date().toISOString().slice(0,10);
+  const today = localDateStr();
   const {data: comps} = await sb.from('completions').select('*')
     .eq('user_id', session.user.id).eq('routine_id', routine.id).order('completed_date', {ascending:false}).limit(60);
   const todayComp = (comps||[]).find(c=>c.completed_date===today);
@@ -871,35 +958,65 @@ async function renderRoutine(routine, subroutines){
 
   const subCard = document.createElement('div');
   subCard.className = 'card';
-  subCard.innerHTML = `<h3 style="margin:0 0 4px;font-size:15px;">Sub-routines</h3><p class="muted" style="margin-top:0;">e.g. a "Gym" checklist that lives inside this routine.</p>`;
+  subCard.innerHTML = `<h3 style="margin:0 0 4px;font-size:15px;">Sub-routines</h3><p class="muted" style="margin-top:0;">e.g. a "Gym" checklist inside this routine — tap one to open it here.</p>`;
   const subListDiv = document.createElement('div');
   subListDiv.className = 'sub-list';
   subroutines.forEach(sr=>{
-    const chip = document.createElement('span');
-    chip.style.display = 'inline-flex';
-    chip.style.alignItems = 'center';
-    chip.style.gap = '2px';
-    chip.style.marginRight = '6px';
-    const btn = document.createElement('button');
-    btn.className = 'sub-chip';
-    btn.style.border = 'none';
-    btn.style.margin = '4px 0 0';
-    btn.textContent = sr.name + ' →';
-    btn.onclick = () => openSubroutine(sr, routine, subroutines);
-    const del = document.createElement('button');
-    del.textContent = '×';
-    del.style.background = 'none';
-    del.style.border = 'none';
-    del.style.color = 'var(--soft)';
-    del.style.fontSize = '16px';
-    del.onclick = async () => {
-      if(!confirm(`Delete sub-routine "${sr.name}"?`)) return;
+    const block = document.createElement('div');
+    block.style.border = '1px solid var(--line)';
+    block.style.borderRadius = '10px';
+    block.style.marginTop = '10px';
+    block.style.padding = '10px 12px';
+
+    const headerRow = document.createElement('div');
+    headerRow.style.display = 'flex';
+    headerRow.style.justifyContent = 'space-between';
+    headerRow.style.alignItems = 'center';
+    headerRow.style.cursor = 'pointer';
+
+    const label = document.createElement('strong');
+    label.style.fontSize = '14px';
+    const setLabel = () => { label.textContent = (expandedSubs.has(sr.id) ? '▾ ' : '▸ ') + sr.name; };
+    setLabel();
+
+    const actions = document.createElement('div');
+    actions.style.display = 'flex';
+    actions.style.gap = '10px';
+    const renameBtn = document.createElement('button');
+    renameBtn.className = 'btn-link'; renameBtn.style.margin = '0'; renameBtn.textContent = 'Rename';
+    renameBtn.onclick = async (e) => {
+      e.stopPropagation();
+      const n = prompt("Rename sub-routine:", sr.name);
+      if(n && n.trim()){ await sb.from('routines').update({name:n.trim()}).eq('id', sr.id); loadRoutine(routine.id); }
+    };
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn-link'; delBtn.style.margin = '0'; delBtn.style.color = '#D9756B'; delBtn.textContent = 'Delete';
+    delBtn.onclick = async (e) => {
+      e.stopPropagation();
+      if(!confirm(`Delete "${sr.name}"?`)) return;
       await sb.from('routines').delete().eq('id', sr.id);
       loadRoutine(routine.id);
     };
-    chip.appendChild(btn);
-    chip.appendChild(del);
-    subListDiv.appendChild(chip);
+    actions.appendChild(renameBtn);
+    actions.appendChild(delBtn);
+    headerRow.appendChild(label);
+    headerRow.appendChild(actions);
+
+    const body = document.createElement('div');
+    body.style.marginTop = '10px';
+    body.classList.toggle('hidden', !expandedSubs.has(sr.id));
+
+    headerRow.onclick = () => {
+      if(expandedSubs.has(sr.id)) expandedSubs.delete(sr.id);
+      else { expandedSubs.add(sr.id); renderSubChecklist(sr, body); }
+      body.classList.toggle('hidden');
+      setLabel();
+    };
+
+    block.appendChild(headerRow);
+    block.appendChild(body);
+    subListDiv.appendChild(block);
+    if(expandedSubs.has(sr.id)) renderSubChecklist(sr, body);
   });
   subCard.appendChild(subListDiv);
 
@@ -921,17 +1038,48 @@ async function renderRoutine(routine, subroutines){
   area.appendChild(subCard);
 }
 
-async function openSubroutine(sub, parentRoutine, siblingSubs){
-  const {data: items} = await sb.from('routine_items').select('*').eq('routine_id', sub.id);
-  if(!items || items.length===0){
-    await sb.from('routine_items').insert({routine_id: sub.id, text:"First step", position:0});
-  }
-  renderRoutine(sub, []);
-  const back = document.createElement('button');
-  back.className = 'btn-link';
-  back.textContent = '← Back to ' + parentRoutine.name;
-  back.onclick = () => loadRoutine(parentRoutine.id);
-  $('routineArea').prepend(back);
+async function renderSubChecklist(sub, containerEl){
+  const {data: items} = await sb.from('routine_items').select('*').eq('routine_id', sub.id).order('position');
+  const today = localDateStr();
+  const {data: comps} = await sb.from('completions').select('*')
+    .eq('user_id', session.user.id).eq('routine_id', sub.id).order('completed_date', {ascending:false}).limit(60);
+  const todayComp = (comps||[]).find(c=>c.completed_date===today);
+  const doneIds = new Set(todayComp ? todayComp.done_item_ids : []);
+  const streak = computeStreak(comps||[], (items||[]).length);
+
+  containerEl.innerHTML = `<div class="muted" style="font-size:12px;margin-bottom:8px;font-family:var(--font-mono);">${streak} day${streak===1?'':'s'} streak</div>`;
+  const list = document.createElement('div');
+  (items||[]).forEach(it=>{
+    const row = document.createElement('div');
+    row.className = 'item-row' + (doneIds.has(it.id) ? ' done' : '');
+    row.innerHTML = `<input type="checkbox" ${doneIds.has(it.id)?'checked':''}> <span>${escapeHtml(it.text)}</span> <span class="muted" style="font-size:12px;">+${it.xp||10} XP</span> <button class="rm">×</button>`;
+    row.querySelector('input').onchange = async (e) => {
+      const xpVal = it.xp || 10;
+      if(e.target.checked){ doneIds.add(it.id); adjustXp(xpVal); } else { doneIds.delete(it.id); adjustXp(-xpVal); }
+      await saveCompletion(sub.id, today, [...doneIds]);
+      renderSubChecklist(sub, containerEl);
+    };
+    row.querySelector('.rm').onclick = async () => {
+      await sb.from('routine_items').delete().eq('id', it.id);
+      renderSubChecklist(sub, containerEl);
+    };
+    list.appendChild(row);
+  });
+  containerEl.appendChild(list);
+
+  const addRow = document.createElement('div');
+  addRow.className = 'add-item';
+  const diffId = 'diff-' + sub.id;
+  const textId = 'text-' + sub.id;
+  addRow.innerHTML = `<input type="text" placeholder="Add a step…" id="${textId}"><select id="${diffId}"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select><button>Add</button>`;
+  addRow.querySelector('button').onclick = async () => {
+    const val = document.getElementById(textId).value.trim();
+    const diff = document.getElementById(diffId).value;
+    if(!val) return;
+    await sb.from('routine_items').insert({routine_id: sub.id, text: val, position:(items||[]).length, xp: DIFFICULTY_XP[diff] || 15});
+    renderSubChecklist(sub, containerEl);
+  };
+  containerEl.appendChild(addRow);
 }
 
 async function saveCompletion(routineId, dateStr, doneIds){
@@ -946,7 +1094,7 @@ function computeStreak(comps, totalItems){
   let streak = 0;
   let cursor = new Date();
   for(let i=0;i<365;i++){
-    const dstr = cursor.toISOString().slice(0,10);
+    const dstr = localDateStr(cursor);
     const comp = comps.find(c=>c.completed_date===dstr);
     const complete = comp && comp.done_item_ids.length >= totalItems && totalItems>0;
     if(complete){ streak++; cursor.setDate(cursor.getDate()-1); }
