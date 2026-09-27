@@ -20,13 +20,15 @@
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);min-height:100vh;background-size:cover;background-position:center;background-attachment:fixed;transition:background-color .3s;position:relative;}
   body::before{content:"";position:fixed;top:-12%;left:-12%;width:55%;height:55%;background:radial-gradient(circle,var(--accent) 0%,transparent 70%);opacity:.14;filter:blur(70px);z-index:-1;pointer-events:none;}
   body::after{content:"";position:fixed;bottom:-15%;right:-12%;width:55%;height:55%;background:radial-gradient(circle,#6C63FF 0%,transparent 70%);opacity:.12;filter:blur(80px);z-index:-1;pointer-events:none;}
+  .wrap::before{content:"";position:fixed;inset:0;background-image:radial-gradient(rgba(255,255,255,.035) 1px,transparent 1px);background-size:26px 26px;z-index:-1;pointer-events:none;}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.6px;color:var(--accent);font-weight:700;margin-bottom:6px;font-family:var(--font-mono);}
   h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:.1px;font-weight:700;}
   .tagline{font-style:normal;}
   .wrap{max-width:880px;margin:0 auto;padding:40px 24px 80px;position:relative;z-index:1;}
   .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:16px;}
-  .stat-card{background:linear-gradient(155deg,var(--card-alpha),rgba(232,98,44,.08));border:1px solid var(--line);border-radius:14px;padding:18px;}
-  .stat-card .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--soft);margin-bottom:8px;}
-  .stat-card .stat-value{font-family:var(--font-mono);font-size:26px;font-weight:700;}
+  .stat-card{background:linear-gradient(155deg,var(--card-alpha),rgba(232,98,44,.08));border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:14px;padding:20px;}
+  .stat-card .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--soft);margin-bottom:10px;}
+  .stat-card .stat-value{font-family:var(--font-mono);font-size:34px;font-weight:700;line-height:1;}
   .stat-card .stat-value.good{color:var(--good);}
   .stat-card .stat-value.accent{color:var(--accent);}
   .stat-card .stat-value.gold{color:var(--gold);}
@@ -48,9 +50,9 @@
   .node-info{flex:1;}
   .node-title{font-weight:700;font-size:14px;}
   .node-req{color:var(--soft);font-size:12px;font-family:var(--font-mono);}
-  h1{font-size:36px;font-weight:800;margin:0 0 4px;letter-spacing:.5px;}
+  h1{font-size:40px;font-weight:800;margin:0 0 4px;letter-spacing:.5px;}
   .tagline{color:var(--soft);margin:0 0 32px;font-size:15px;}
-  .card{background:var(--card-alpha);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:14px;padding:26px;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,0,0,.35);}
+  .card{background:var(--card-alpha);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:14px;padding:28px;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,0,0,.35);}
   label{display:block;font-size:12px;color:var(--soft);margin-bottom:4px;margin-top:14px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;}
   input[type=text],input[type=email],input[type=password]{width:100%;padding:11px 16px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:var(--input-bg);color:var(--ink);font-family:inherit;}
   input[type=color]{width:48px;height:40px;border:1px solid var(--line);border-radius:8px;padding:2px;background:#fff;}
@@ -232,6 +234,7 @@
         <option value="JetBrains Mono">JetBrains Mono (monospace)</option>
       </select>
       <button class="btn-primary" id="saveCustomize">Save look</button>
+      <button class="btn-link" id="resetCustomize" style="color:var(--soft);">Reset to default look</button>
     </div>
 
     <div class="card hidden" id="usernameSetup">
@@ -370,6 +373,7 @@ $('signout').onclick = async () => {
 };
 
 let currentSettings = {bg_type:'color', bg_value:'#0A0A0C', accent:'#E8622C', text_color:'#F2F0EC', font:'Inter', input_bg:'#17151A'};
+const DEFAULT_SETTINGS = {bg_type:'color', bg_value:'#0A0A0C', accent:'#E8622C', text_color:'#F2F0EC', font:'Inter', input_bg:'#17151A'};
 
 const TITLES = [
   {min:0, title:"Newcomer", icon:"○"},
@@ -439,8 +443,7 @@ async function ensureProfile(){
 function renderProfileBadge(){
   const t = getTitleFor(myProfile.total_xp);
   const lvl = getLevel(myProfile.total_xp);
-  const icon = myProfile.icon || t.icon;
-  $('whoami').innerHTML = `<span style="color:var(--gold);">${icon}</span> <strong>${escapeHtml(myProfile.username)}</strong> · Lvl ${lvl} · <span style="color:var(--gold);font-weight:700;">${t.title}</span>`;
+  $('whoami').innerHTML = `${renderIcon(myProfile.icon, t.icon)} <strong>${escapeHtml(myProfile.username)}</strong> · Lvl ${lvl} · <span style="color:var(--gold);font-weight:700;">${t.title}</span>`;
 }
 
 function showToast(msg){
@@ -492,6 +495,7 @@ function showView(view){
 
 function renderHome(){
   $('homeView').innerHTML = `
+    <div class="eyebrow">01 · OVERVIEW</div>
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-label">Level</div>
@@ -512,6 +516,80 @@ function renderHome(){
   `;
 }
 
+const SPORT_ICONS = ["⚽","🏀","🏈","⚾","🎾","🏐","🏉","🎱","🏓","🏸","🥊","⛳","🏹","🏊","🚴","⛷️","🏂","🥇"];
+const INSTRUMENT_ICONS = ["🎸","🎹","🥁","🎺","🎷","🪕","🎻","🎤","🪘"];
+let iconPickerTab = 'tier';
+
+function buildTierNodes(xp, tier){
+  return TITLES.map(t=>{
+    const unlocked = xp >= t.min;
+    const isSelected = (myProfile.icon || tier.icon) === t.icon;
+    return `<div class="roadmap-node ${unlocked?'unlocked':''} ${isSelected?'selected':''}">
+      <button class="node-icon" data-icon="${t.icon}" ${unlocked?'':'disabled'} title="${unlocked ? 'Use this icon' : t.title+' — locked'}">${unlocked ? t.icon : '🔒'}</button>
+      <div class="node-info">
+        <div class="node-title">${escapeHtml(t.title)}</div>
+        <div class="node-req">${unlocked ? 'Unlocked · ' + t.min + ' XP' : (t.min - xp) + ' XP to go'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderIconPickerBody(){
+  const el = $('iconPickerBody');
+  if(iconPickerTab === 'tier'){
+    const xp = myProfile.total_xp;
+    const tier = getTitleFor(xp);
+    el.innerHTML = `<div class="roadmap">${buildTierNodes(xp, tier)}</div>`;
+    el.querySelectorAll('.node-icon:not([disabled])').forEach(btn=>{
+      btn.onclick = () => chooseIcon(btn.dataset.icon);
+    });
+  } else if(iconPickerTab === 'letter'){
+    const initial = (myProfile.username || 'R')[0].toUpperCase();
+    el.innerHTML = `
+      <p class="muted" style="margin-top:0;">Pick a single letter to use as your badge.</p>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <input type="text" id="letterInput" maxlength="1" value="${escapeHtml(initial)}" style="width:60px;text-align:center;font-size:20px;">
+        <button class="btn-primary" style="width:auto;margin:0;" id="useLetterBtn">Use this letter</button>
+      </div>`;
+    el.querySelector('#useLetterBtn').onclick = () => {
+      const v = el.querySelector('#letterInput').value.trim().charAt(0);
+      if(v) chooseIcon(v);
+    };
+  } else if(iconPickerTab === 'sport' || iconPickerTab === 'instrument'){
+    const set = iconPickerTab === 'sport' ? SPORT_ICONS : INSTRUMENT_ICONS;
+    el.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:10px;">${set.map(ic=>
+      `<button class="node-icon unlocked" data-icon="${ic}" style="cursor:pointer;">${ic}</button>`
+    ).join('')}</div>`;
+    el.querySelectorAll('.node-icon').forEach(btn=>{
+      btn.onclick = () => chooseIcon(btn.dataset.icon);
+    });
+  } else if(iconPickerTab === 'image'){
+    el.innerHTML = `
+      <p class="muted" style="margin-top:0;">Paste a direct link to an image (square photos work best).</p>
+      <input type="text" id="imageUrlInput" placeholder="https://…">
+      <button class="btn-primary" style="margin-top:12px;" id="useImageBtn">Use this image</button>`;
+    el.querySelector('#useImageBtn').onclick = () => {
+      const v = el.querySelector('#imageUrlInput').value.trim();
+      if(v) chooseIcon(v);
+    };
+  }
+}
+
+async function chooseIcon(icon){
+  myProfile.icon = icon;
+  await sb.from('profiles').update({icon}).eq('user_id', session.user.id);
+  renderProfileBadge();
+  renderIconPickerBody();
+}
+
+function renderIcon(value, fallback){
+  const v = value || fallback;
+  if(/^https?:\/\//.test(v)){
+    return `<img src="${v}" alt="" style="width:1.1em;height:1.1em;border-radius:50%;object-fit:cover;vertical-align:-2px;">`;
+  }
+  return escapeHtml(v);
+}
+
 function renderStats(){
   const xp = myProfile.total_xp;
   const level = getLevel(xp);
@@ -526,19 +604,8 @@ function renderStats(){
   const tierSpan = nextTier ? (nextTier.min - tier.min) : 1;
   const tierProgress = nextTier ? Math.min(100, Math.round(((xp - tier.min) / tierSpan) * 100)) : 100;
 
-  const roadmapNodes = TITLES.map(t=>{
-    const unlocked = xp >= t.min;
-    const isSelected = (myProfile.icon || tier.icon) === t.icon;
-    return `<div class="roadmap-node ${unlocked?'unlocked':''} ${isSelected?'selected':''}">
-      <button class="node-icon" data-icon="${t.icon}" ${unlocked?'':'disabled'} title="${unlocked ? 'Use this icon' : t.title+' — locked'}">${unlocked ? t.icon : '🔒'}</button>
-      <div class="node-info">
-        <div class="node-title">${escapeHtml(t.title)}</div>
-        <div class="node-req">${unlocked ? 'Unlocked · ' + t.min + ' XP' : (t.min - xp) + ' XP to go'}</div>
-      </div>
-    </div>`;
-  }).join('');
-
   $('statsView').innerHTML = `
+    <div class="eyebrow">04 · PROGRESS</div>
     <div class="card">
       <div class="stat-label" style="margin-bottom:0;">Level ${level}</div>
       <div class="progress-bar"><div class="progress-fill" style="width:${levelProgress}%;"></div></div>
@@ -550,25 +617,32 @@ function renderStats(){
       <p class="muted" style="margin:8px 0 0;font-family:var(--font-mono);font-size:13px;">${nextTier ? (nextTier.min - xp) + ' XP to ' + nextTier.title : 'Highest tier reached'}</p>
     </div>
     <div class="card">
-      <h3 style="margin:0 0 4px;font-size:15px;">Your path</h3>
-      <p class="muted" style="margin:0 0 6px;">Tap an unlocked icon to wear it next to your name.</p>
-      <div class="roadmap" id="roadmapEl">${roadmapNodes}</div>
+      <h3 style="margin:0 0 4px;font-size:15px;">Choose your badge</h3>
+      <p class="muted" style="margin:0 0 10px;">Tiers unlock as you go, or pick a letter, sport, instrument, or your own image.</p>
+      <div class="seg" id="iconTabSeg">
+        <button data-tab="tier" class="active">Tier</button>
+        <button data-tab="letter">Letter</button>
+        <button data-tab="sport">Sport</button>
+        <button data-tab="instrument">Instrument</button>
+        <button data-tab="image">Image</button>
+      </div>
+      <div id="iconPickerBody" style="margin-top:14px;"></div>
     </div>
   `;
 
-  document.querySelectorAll('#roadmapEl .node-icon:not([disabled])').forEach(btn=>{
-    btn.onclick = async () => {
-      const icon = btn.dataset.icon;
-      myProfile.icon = icon;
-      await sb.from('profiles').update({icon}).eq('user_id', session.user.id);
-      renderProfileBadge();
-      renderStats();
+  document.querySelectorAll('#iconTabSeg button').forEach(b=>{
+    b.onclick = () => {
+      iconPickerTab = b.dataset.tab;
+      document.querySelectorAll('#iconTabSeg button').forEach(x=>x.classList.toggle('active', x===b));
+      renderIconPickerBody();
     };
   });
+  renderIconPickerBody();
 }
 
 function renderAbout(){
   $('aboutView').innerHTML = `
+    <div class="eyebrow">05 · ABOUT</div>
     <div class="card">
       <h2 style="margin:0 0 10px;">About Ritual</h2>
       <p>Ritual helps you build routines that actually stick — morning, night, after school, after work, and anything else you want to turn into a habit. Check off small steps daily, earn XP, and watch your streaks and titles grow.</p>
@@ -578,18 +652,27 @@ function renderAbout(){
   `;
 }
 
-function gcalLink(title, dateStr, timeStr){
+function icsHref(title, dateStr, timeStr){
   if(!dateStr) return null;
   const d = dateStr.replace(/-/g,'');
-  let dates;
+  let dtStart, dtEnd;
   if(timeStr){
     const [h,m] = timeStr.split(':').map(Number);
     const endH = (h+1) % 24;
-    dates = `${d}T${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}00/${d}T${String(endH).padStart(2,'0')}${String(m).padStart(2,'0')}00`;
+    dtStart = `DTSTART:${d}T${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}00`;
+    dtEnd = `DTEND:${d}T${String(endH).padStart(2,'0')}${String(m).padStart(2,'0')}00`;
   } else {
-    dates = `${d}/${d}`;
+    dtStart = `DTSTART;VALUE=DATE:${d}`;
+    dtEnd = `DTEND;VALUE=DATE:${d}`;
   }
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${dates}`;
+  const ics = [
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Ritual//Task//EN','BEGIN:VEVENT',
+    `UID:${Date.now()}-${Math.random().toString(36).slice(2)}@ritual`,
+    dtStart, dtEnd,
+    `SUMMARY:${title.replace(/[\r\n]/g,' ')}`,
+    'END:VEVENT','END:VCALENDAR'
+  ].join('\r\n');
+  return 'data:text/calendar;charset=utf8,' + encodeURIComponent(ics);
 }
 
 async function loadTasks(){
@@ -599,7 +682,7 @@ async function loadTasks(){
     .order('done').order('due_date', {ascending:true, nullsFirst:false});
   const tasks = data || [];
 
-  view.innerHTML = '';
+  view.innerHTML = '<div class="eyebrow">03 · TASKS</div>';
 
   const addCard = document.createElement('div');
   addCard.className = 'card';
@@ -638,11 +721,11 @@ async function loadTasks(){
       const row = document.createElement('div');
       row.className = 'item-row' + (t.done ? ' done' : '');
       const dueText = t.due_date ? ` · due ${t.due_date}${t.due_time ? ' '+t.due_time : ''}` : '';
-      const cal = gcalLink(t.title, t.due_date, t.due_time);
+      const cal = icsHref(t.title, t.due_date, t.due_time);
       row.innerHTML = `
         <input type="checkbox" ${t.done?'checked':''}>
         <span>${escapeHtml(t.title)}<span class="muted" style="font-size:12px;"> +${t.xp} XP${dueText}</span></span>
-        ${cal ? `<a href="${cal}" target="_blank" rel="noopener" class="btn-link" style="margin:0;">Add to calendar</a>` : ''}
+        ${cal ? `<a href="${cal}" download="${escapeHtml(t.title).replace(/[^a-z0-9]/gi,'_')}.ics" class="btn-link" style="margin:0;">Add to calendar</a>` : ''}
         <button class="rm">×</button>
       `;
       row.querySelector('input').onchange = async (e) => {
@@ -696,7 +779,7 @@ async function loadLeaderboard(mode){
       const t = getTitleFor(r.total_xp);
       const row = document.createElement('div');
       row.className = 'lb-row';
-      row.innerHTML = `<span class="lb-rank">#${i+1}</span><span class="lb-name"><span style="color:var(--gold);">${r.icon || t.icon}</span> ${escapeHtml(r.username)}${r.user_id===session.user.id ? ' (you)' : ''} <span class="muted" style="font-size:12px;">${t.title}</span></span><span class="lb-xp">${r.total_xp} XP</span>`;
+      row.innerHTML = `<span class="lb-rank">#${i+1}</span><span class="lb-name">${renderIcon(r.icon, t.icon)} ${escapeHtml(r.username)}${r.user_id===session.user.id ? ' (you)' : ''} <span class="muted" style="font-size:12px;">${t.title}</span></span><span class="lb-xp">${r.total_xp} XP</span>`;
       card.appendChild(row);
     });
   }
@@ -800,6 +883,12 @@ function setupCustomizeUI(){
     const input_bg = $('inputBgInput').value;
     const font = $('fontInput').value;
     currentSettings = {user_id: session.user.id, bg_type:type, bg_value:value, accent, text_color, input_bg, font};
+    await sb.from('user_settings').upsert(currentSettings);
+    applySettings(currentSettings);
+    $('customizePanel').classList.add('hidden');
+  };
+  $('resetCustomize').onclick = async () => {
+    currentSettings = {user_id: session.user.id, ...DEFAULT_SETTINGS};
     await sb.from('user_settings').upsert(currentSettings);
     applySettings(currentSettings);
     $('customizePanel').classList.add('hidden');
