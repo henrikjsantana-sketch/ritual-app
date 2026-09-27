@@ -5,19 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ritual — Build Routines That Stick</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700&family=Poppins:wght@400;600;700&family=Comic+Neue:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700&family=Poppins:wght@400;600;700&family=Comic+Neue:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   :root{
     --bg:#111010; --ink:#F3EFE6; --soft:#9C968A; --line:#2B2823;
     --accent:#C9A227; --accent-dark:#A6841C; --card:#181614; --card-alpha:rgba(24,22,20,.92);
     --font-body:'Inter',-apple-system,sans-serif;
-    --font-display:'Playfair Display',Georgia,serif;
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);min-height:100vh;background-size:cover;background-position:center;background-attachment:fixed;transition:background-color .3s;}
-  h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:.3px;}
-  .tagline{font-style:italic;}
+  h1,h2,h3{font-family:var(--font-body);color:var(--ink);letter-spacing:.2px;font-weight:800;}
+  .tagline{font-style:normal;}
   .wrap{max-width:640px;margin:0 auto;padding:40px 20px 80px;}
   h1{font-size:36px;font-weight:800;margin:0 0 4px;letter-spacing:.5px;}
   .tagline{color:var(--soft);margin:0 0 32px;font-size:15px;}
@@ -81,6 +80,7 @@
   .add-friend input{flex:1;}
   .pending-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;}
   .add-item input[type=number]{width:64px;flex:none;text-align:center;}
+  .add-item select{width:auto;flex:none;}
 </style>
 </head>
 <body>
@@ -90,7 +90,7 @@
     <div class="logo-wrap">
       <svg class="logo-mark" viewBox="0 0 40 40" width="34" height="34" xmlns="http://www.w3.org/2000/svg">
         <circle cx="20" cy="20" r="17" fill="none" stroke-width="2"/>
-        <text x="20" y="27" font-family="Playfair Display, serif" font-size="19" font-weight="700" text-anchor="middle">R</text>
+        <text x="20" y="27" font-family="Inter, sans-serif" font-size="19" font-weight="700" text-anchor="middle">R</text>
       </svg>
       <h1 style="margin:0;">Ritual</h1>
     </div>
@@ -124,7 +124,7 @@
       <div class="logo-wrap">
         <svg class="logo-mark" viewBox="0 0 40 40" width="30" height="30" xmlns="http://www.w3.org/2000/svg">
           <circle cx="20" cy="20" r="17" fill="none" stroke-width="2"/>
-          <text x="20" y="27" font-family="Playfair Display, serif" font-size="19" font-weight="700" text-anchor="middle">R</text>
+          <text x="20" y="27" font-family="Inter, sans-serif" font-size="19" font-weight="700" text-anchor="middle">R</text>
         </svg>
         <div>
           <h1 style="margin-bottom:0;font-size:24px;">Ritual</h1>
@@ -139,6 +139,7 @@
           <div class="nav-main hidden" id="mainNav">
             <button data-view="home" class="active">Home</button>
             <button data-view="routines">Routines</button>
+            <button data-view="tasks">Tasks</button>
             <button data-view="leaderboard">Leaderboard</button>
             <button data-view="about">About</button>
           </div>
@@ -189,6 +190,8 @@
       <div id="routineArea"></div>
     </div>
 
+    <div id="tasksView" class="hidden"></div>
+
     <div id="leaderboardView" class="hidden"></div>
 
     <div id="aboutView" class="hidden"></div>
@@ -212,6 +215,8 @@ let session = null;
 let routinesList = [];
 let activeRoutineId = null;
 let signupMode = false;
+
+const DIFFICULTY_XP = {easy:5, medium:15, hard:30};
 
 const $ = id => document.getElementById(id);
 
@@ -382,11 +387,12 @@ function setupNav(){
 }
 
 function showView(view){
-  ['home','routines','leaderboard','about'].forEach(v=>{
+  ['home','routines','tasks','leaderboard','about'].forEach(v=>{
     $(v+'View').classList.toggle('hidden', v!==view);
   });
   document.querySelectorAll('#mainNav button').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
   if(view==='home') renderHome();
+  if(view==='tasks') loadTasks();
   if(view==='leaderboard') loadLeaderboard('global');
   if(view==='about') renderAbout();
 }
@@ -413,6 +419,88 @@ function renderAbout(){
       <p class="muted" style="margin-top:16px;">Questions or feedback? Reach us at <strong>henrik.j.santana@gmail.com</strong>.</p>
     </div>
   `;
+}
+
+function gcalLink(title, dateStr, timeStr){
+  if(!dateStr) return null;
+  const d = dateStr.replace(/-/g,'');
+  let dates;
+  if(timeStr){
+    const [h,m] = timeStr.split(':').map(Number);
+    const endH = (h+1) % 24;
+    dates = `${d}T${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}00/${d}T${String(endH).padStart(2,'0')}${String(m).padStart(2,'0')}00`;
+  } else {
+    dates = `${d}/${d}`;
+  }
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${dates}`;
+}
+
+async function loadTasks(){
+  const view = $('tasksView');
+  view.innerHTML = '<p class="muted">Loading…</p>';
+  const {data} = await sb.from('tasks').select('*').eq('user_id', session.user.id)
+    .order('done').order('due_date', {ascending:true, nullsFirst:false});
+  const tasks = data || [];
+
+  view.innerHTML = '';
+
+  const addCard = document.createElement('div');
+  addCard.className = 'card';
+  addCard.innerHTML = `
+    <h3 style="margin:0 0 4px;font-size:16px;">Add a one-time task</h3>
+    <label>Task</label>
+    <input type="text" id="taskTitle" placeholder="e.g. Send the invoice">
+    <label>Due date</label>
+    <input type="date" id="taskDate">
+    <label>Due time (optional)</label>
+    <input type="time" id="taskTime">
+    <label>Difficulty</label>
+    <select id="taskDifficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select>
+    <button class="btn-primary" id="addTaskBtn">Add task</button>
+  `;
+  addCard.querySelector('#addTaskBtn').onclick = async () => {
+    const title = addCard.querySelector('#taskTitle').value.trim();
+    if(!title) return;
+    const due_date = addCard.querySelector('#taskDate').value || null;
+    const due_time = addCard.querySelector('#taskTime').value || null;
+    const difficulty = addCard.querySelector('#taskDifficulty').value;
+    await sb.from('tasks').insert({
+      user_id: session.user.id, title, due_date, due_time,
+      difficulty, xp: DIFFICULTY_XP[difficulty] || 15
+    });
+    loadTasks();
+  };
+  view.appendChild(addCard);
+
+  const listCard = document.createElement('div');
+  listCard.className = 'card';
+  if(tasks.length===0){
+    listCard.innerHTML = '<p class="muted">No one-time tasks yet — add one above.</p>';
+  } else {
+    tasks.forEach(t=>{
+      const row = document.createElement('div');
+      row.className = 'item-row' + (t.done ? ' done' : '');
+      const dueText = t.due_date ? ` · due ${t.due_date}${t.due_time ? ' '+t.due_time : ''}` : '';
+      const cal = gcalLink(t.title, t.due_date, t.due_time);
+      row.innerHTML = `
+        <input type="checkbox" ${t.done?'checked':''}>
+        <span>${escapeHtml(t.title)}<span class="muted" style="font-size:12px;"> +${t.xp} XP${dueText}</span></span>
+        ${cal ? `<a href="${cal}" target="_blank" rel="noopener" class="btn-link" style="margin:0;">Add to calendar</a>` : ''}
+        <button class="rm">×</button>
+      `;
+      row.querySelector('input').onchange = async (e) => {
+        await sb.from('tasks').update({done: e.target.checked}).eq('id', t.id);
+        adjustXp(e.target.checked ? t.xp : -t.xp);
+        loadTasks();
+      };
+      row.querySelector('.rm').onclick = async () => {
+        await sb.from('tasks').delete().eq('id', t.id);
+        loadTasks();
+      };
+      listCard.appendChild(row);
+    });
+  }
+  view.appendChild(listCard);
 }
 
 let lbMode = 'global';
@@ -695,10 +783,11 @@ async function renderRoutine(routine, subroutines){
 
   const addRow = document.createElement('div');
   addRow.className = 'add-item';
-  addRow.innerHTML = `<input type="text" placeholder="Add a step…" id="newItemInput"><input type="number" min="1" max="500" value="10" id="newItemXp" title="XP for this step"><button>Add</button>`;
+  addRow.innerHTML = `<input type="text" placeholder="Add a step…" id="newItemInput"><select id="newItemDifficulty" title="Difficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select><button>Add</button>`;
   addRow.querySelector('button').onclick = async () => {
     const val = document.getElementById('newItemInput').value.trim();
-    const xpVal = parseInt(document.getElementById('newItemXp').value) || 10;
+    const diff = document.getElementById('newItemDifficulty').value;
+    const xpVal = DIFFICULTY_XP[diff] || 15;
     if(!val) return;
     await sb.from('routine_items').insert({routine_id: routine.id, text: val, position:(items||[]).length, xp: xpVal});
     renderRoutine(routine, subroutines);
