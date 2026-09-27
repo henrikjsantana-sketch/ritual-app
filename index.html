@@ -5,26 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ritual — Build Routines That Stick</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700&family=Poppins:wght@400;600;700&family=Comic+Neue:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Manrope:wght@500;600;700;800&family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700&family=Poppins:wght@400;600;700&family=Comic+Neue:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   :root{
-    --bg:#0B0C0E; --ink:#EDEEF0; --soft:#7B818C; --line:#1E2126;
-    --accent:#3E7BFA; --accent-dark:#2F5FD1; --card:#121317; --card-alpha:rgba(18,19,23,.92);
-    --good:#33B27A;
+    --bg:#0A0A0D; --ink:#EDEDF2; --soft:#8B8798; --line:#211F27;
+    --accent:#6C63FF; --accent-dark:#5449E0; --gold:#E3B341; --good:#34C77B;
+    --card:#131217; --card-alpha:rgba(19,18,23,.92);
     --font-body:'Inter',-apple-system,sans-serif;
+    --font-display:'Space Grotesk',var(--font-body);
+    --font-mono:'IBM Plex Mono',monospace;
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);min-height:100vh;background-size:cover;background-position:center;background-attachment:fixed;transition:background-color .3s;}
-  h1,h2,h3{font-family:var(--font-body);color:var(--ink);letter-spacing:.2px;font-weight:800;}
+  h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:.1px;font-weight:700;}
   .tagline{font-style:normal;}
   .wrap{max-width:880px;margin:0 auto;padding:40px 24px 80px;}
   .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:16px;}
-  .stat-card{background:var(--card-alpha);border:1px solid var(--line);border-radius:6px;padding:18px;}
+  .stat-card{background:linear-gradient(155deg,var(--card-alpha),rgba(108,99,255,.07));border:1px solid var(--line);border-radius:8px;padding:18px;}
   .stat-card .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--soft);margin-bottom:8px;}
-  .stat-card .stat-value{font-size:26px;font-weight:800;}
+  .stat-card .stat-value{font-family:var(--font-mono);font-size:26px;font-weight:700;}
   .stat-card .stat-value.good{color:var(--good);}
   .stat-card .stat-value.accent{color:var(--accent);}
+  .stat-card .stat-value.gold{color:var(--gold);}
+  .progress-bar{background:var(--line);border-radius:6px;height:10px;overflow:hidden;margin-top:10px;}
+  .progress-fill{background:var(--accent);height:100%;border-radius:6px;transition:width .3s;}
+  .progress-fill.gold{background:var(--gold);}
+  .tier-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;}
+  .tier-row:last-child{border-bottom:none;}
+  .tier-row.unlocked .tier-name{color:var(--gold);font-weight:700;}
+  .tier-row .tier-req{color:var(--soft);font-family:var(--font-mono);font-size:13px;}
   h1{font-size:36px;font-weight:800;margin:0 0 4px;letter-spacing:.5px;}
   .tagline{color:var(--soft);margin:0 0 32px;font-size:15px;}
   .card{background:var(--card-alpha);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:6px;padding:26px;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,0,0,.35);}
@@ -97,7 +107,7 @@
     <div class="logo-wrap">
       <svg class="logo-mark" viewBox="0 0 40 40" width="34" height="34" xmlns="http://www.w3.org/2000/svg">
         <circle cx="20" cy="20" r="17" fill="none" stroke-width="2"/>
-        <text x="20" y="27" font-family="Inter, sans-serif" font-size="19" font-weight="700" text-anchor="middle">R</text>
+        <text x="20" y="27" font-family="Space Grotesk, sans-serif" font-size="19" font-weight="700" text-anchor="middle">R</text>
       </svg>
       <h1 style="margin:0;">Ritual</h1>
     </div>
@@ -131,7 +141,7 @@
       <div class="logo-wrap">
         <svg class="logo-mark" viewBox="0 0 40 40" width="30" height="30" xmlns="http://www.w3.org/2000/svg">
           <circle cx="20" cy="20" r="17" fill="none" stroke-width="2"/>
-          <text x="20" y="27" font-family="Inter, sans-serif" font-size="19" font-weight="700" text-anchor="middle">R</text>
+          <text x="20" y="27" font-family="Space Grotesk, sans-serif" font-size="19" font-weight="700" text-anchor="middle">R</text>
         </svg>
         <div>
           <h1 style="margin-bottom:0;font-size:24px;">Ritual</h1>
@@ -147,6 +157,7 @@
             <button data-view="home" class="active">Home</button>
             <button data-view="routines">Routines</button>
             <button data-view="tasks">Tasks</button>
+            <button data-view="stats">Stats</button>
             <button data-view="leaderboard">Leaderboard</button>
             <button data-view="about">About</button>
           </div>
@@ -198,6 +209,8 @@
     </div>
 
     <div id="tasksView" class="hidden"></div>
+
+    <div id="statsView" class="hidden"></div>
 
     <div id="leaderboardView" class="hidden"></div>
 
@@ -308,18 +321,21 @@ $('signout').onclick = async () => {
 let currentSettings = {bg_type:'color', bg_value:'#F2E9DA', accent:'#B5652F', text_color:'#3A3226', font:'Nunito'};
 
 const TITLES = [
-  {min:0, title:"Newcomer", icon:"🌱"},
-  {min:50, title:"Rising", icon:"🔥"},
-  {min:150, title:"Committed", icon:"⭐"},
-  {min:400, title:"Disciplined", icon:"💎"},
-  {min:1000, title:"Master", icon:"🏆"},
-  {min:2500, title:"Legend", icon:"👑"},
+  {min:0, title:"Newcomer"},
+  {min:500, title:"Apprentice"},
+  {min:1500, title:"Committed"},
+  {min:4000, title:"Disciplined"},
+  {min:9000, title:"Elite"},
+  {min:20000, title:"Master"},
+  {min:50000, title:"Legend"},
 ];
 function getTitleFor(xp){
   let t = TITLES[0];
   for(const x of TITLES) if(xp >= x.min) t = x;
   return t;
 }
+function getLevel(xp){ return Math.floor(1 + Math.sqrt(xp/25)); }
+function xpForLevel(level){ return Math.round(Math.pow(Math.max(level-1,0),2) * 25); }
 let myProfile = null;
 
 async function boot(){
@@ -371,7 +387,8 @@ async function ensureProfile(){
 
 function renderProfileBadge(){
   const t = getTitleFor(myProfile.total_xp);
-  $('whoami').innerHTML = `<strong>${escapeHtml(myProfile.username)}</strong> · <span style="color:var(--accent);font-weight:700;">${t.title}</span> · ${myProfile.total_xp} XP`;
+  const lvl = getLevel(myProfile.total_xp);
+  $('whoami').innerHTML = `<strong>${escapeHtml(myProfile.username)}</strong> · Lvl ${lvl} · <span style="color:var(--gold);font-weight:700;">${t.title}</span>`;
 }
 
 async function adjustXp(delta){
@@ -394,40 +411,75 @@ function setupNav(){
 }
 
 function showView(view){
-  ['home','routines','tasks','leaderboard','about'].forEach(v=>{
+  ['home','routines','tasks','stats','leaderboard','about'].forEach(v=>{
     $(v+'View').classList.toggle('hidden', v!==view);
   });
   document.querySelectorAll('#mainNav button').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
   if(view==='home') renderHome();
   if(view==='tasks') loadTasks();
+  if(view==='stats') renderStats();
   if(view==='leaderboard') loadLeaderboard('global');
   if(view==='about') renderAbout();
 }
 
 function renderHome(){
-  const t = getTitleFor(myProfile.total_xp);
-  const nextTier = TITLES.find(x=>x.min > myProfile.total_xp);
   $('homeView').innerHTML = `
     <div class="stat-grid">
       <div class="stat-card">
-        <div class="stat-label">Total XP</div>
-        <div class="stat-value accent">${myProfile.total_xp}</div>
+        <div class="stat-label">Level</div>
+        <div class="stat-value accent">${getLevel(myProfile.total_xp)}</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Current tier</div>
-        <div class="stat-value">${t.title}</div>
+        <div class="stat-label">Total XP</div>
+        <div class="stat-value gold">${myProfile.total_xp}</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Active routines</div>
         <div class="stat-value good">${routinesList.length}</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Next tier at</div>
-        <div class="stat-value">${nextTier ? nextTier.min + ' XP' : '—'}</div>
-      </div>
     </div>
     <div class="card">
-      <p class="muted" style="margin:0;">Welcome back, <strong>${escapeHtml(myProfile.username)}</strong>. Head to <strong>Routines</strong> to check off today's steps, <strong>Tasks</strong> for one-off items, or check the <strong>Leaderboard</strong> to see how you compare to friends.</p>
+      <p class="muted" style="margin:0;">Welcome back, <strong>${escapeHtml(myProfile.username)}</strong>. Head to <strong>Routines</strong> for today's steps, <strong>Tasks</strong> for one-off items, <strong>Stats</strong> to see your full progress, or the <strong>Leaderboard</strong> to compare with friends.</p>
+    </div>
+  `;
+}
+
+function renderStats(){
+  const xp = myProfile.total_xp;
+  const level = getLevel(xp);
+  const thisLevelXp = xpForLevel(level);
+  const nextLevelXp = xpForLevel(level+1);
+  const levelSpan = Math.max(nextLevelXp - thisLevelXp, 1);
+  const levelProgress = Math.min(100, Math.round(((xp - thisLevelXp) / levelSpan) * 100));
+
+  const tier = getTitleFor(xp);
+  const tierIdx = TITLES.findIndex(t=>t.title===tier.title);
+  const nextTier = TITLES[tierIdx+1];
+  const tierSpan = nextTier ? (nextTier.min - tier.min) : 1;
+  const tierProgress = nextTier ? Math.min(100, Math.round(((xp - tier.min) / tierSpan) * 100)) : 100;
+
+  const tierRows = TITLES.map(t=>{
+    const unlocked = xp >= t.min;
+    return `<div class="tier-row ${unlocked?'unlocked':''}">
+      <span class="tier-name">${escapeHtml(t.title)}</span>
+      <span class="tier-req">${unlocked ? 'Unlocked' : (t.min - xp) + ' XP to go'}</span>
+    </div>`;
+  }).join('');
+
+  $('statsView').innerHTML = `
+    <div class="card">
+      <div class="stat-label" style="margin-bottom:0;">Level ${level}</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${levelProgress}%;"></div></div>
+      <p class="muted" style="margin:8px 0 0;font-family:var(--font-mono);font-size:13px;">${xp - thisLevelXp} / ${levelSpan} XP to Level ${level+1}</p>
+    </div>
+    <div class="card">
+      <div class="stat-label" style="margin-bottom:0;">Tier: ${escapeHtml(tier.title)}</div>
+      <div class="progress-bar"><div class="progress-fill gold" style="width:${tierProgress}%;"></div></div>
+      <p class="muted" style="margin:8px 0 0;font-family:var(--font-mono);font-size:13px;">${nextTier ? (nextTier.min - xp) + ' XP to ' + nextTier.title : 'Highest tier reached'}</p>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 8px;font-size:15px;">Tier roadmap</h3>
+      ${tierRows}
     </div>
   `;
 }
