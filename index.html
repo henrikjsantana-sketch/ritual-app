@@ -26,7 +26,7 @@
   .tagline{font-style:normal;}
   .wrap{max-width:880px;margin:0 auto;padding:40px 24px 80px;position:relative;z-index:1;}
   .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:16px;}
-  .stat-card{background:linear-gradient(155deg,var(--card-alpha),rgba(232,98,44,.08));border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:14px;padding:20px;}
+  .stat-card{background:linear-gradient(155deg,var(--card-alpha),rgba(232,98,44,.08));border:1px solid rgba(255,255,255,.09);border-left:3px solid var(--accent);border-radius:14px;padding:22px;}
   .stat-card .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--soft);margin-bottom:10px;}
   .stat-card .stat-value{font-family:var(--font-mono);font-size:34px;font-weight:700;line-height:1;}
   .stat-card .stat-value.good{color:var(--good);}
@@ -63,12 +63,28 @@
   .btn-link{background:none;border:none;color:var(--accent);font-size:14px;padding:0;margin-top:14px;text-decoration:underline;}
   .error{color:#D9756B;font-size:14px;margin-top:10px;}
   .tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:20px;padding-bottom:4px;}
-  .tab{flex-shrink:0;padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--card-alpha);font-size:13px;font-weight:600;color:var(--soft);text-transform:uppercase;letter-spacing:.6px;}
-  .tab.active{background:var(--accent);color:#FFFFFF;border-color:var(--accent);}
+  .tab{flex-shrink:0;padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:13px;font-weight:600;color:var(--soft);text-transform:uppercase;letter-spacing:.6px;}
+  .tab.active{background:var(--accent);color:#FFFFFF;border-color:var(--accent);box-shadow:0 4px 14px rgba(232,98,44,.35);}
   .routine-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
   .streak{background:var(--bg);color:var(--accent);font-size:13px;padding:4px 12px;border-radius:8px;font-weight:700;border:1px solid var(--line);}
   .item-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);}
   .item-row:last-child{border-bottom:none;}
+  .drag-handle{color:var(--soft);cursor:grab;font-size:14px;letter-spacing:-2px;user-select:none;}
+  .form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .avatar-chip{width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:rgba(227,179,65,.12);border:1px solid rgba(227,179,65,.35);color:var(--gold);font-size:18px;flex-shrink:0;overflow:hidden;}
+  .avatar-chip img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
+  .badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:12px;}
+  .badge-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:24px;cursor:pointer;color:var(--gold);padding:0;}
+  .badge-cell:hover:not(.locked){transform:scale(1.08);border-color:var(--gold);}
+  .badge-cell.locked{opacity:.35;filter:grayscale(1);cursor:not-allowed;color:var(--soft);}
+  .badge-cell.selected{border-color:var(--gold);box-shadow:0 0 0 2px rgba(227,179,65,.4);background:rgba(227,179,65,.12);}
+  .badge-label{font-size:11px;color:var(--soft);text-align:center;margin-top:4px;}
+  .rank-1{color:#E3B341;font-weight:800;}
+  .rank-2{color:#C0C4CC;font-weight:800;}
+  .rank-3{color:#CD7F32;font-weight:800;}
+  .lb-row.top-1{background:linear-gradient(90deg,rgba(227,179,65,.12),transparent);border-radius:8px;padding-left:8px;}
+  .lb-row.top-2{background:linear-gradient(90deg,rgba(192,196,204,.10),transparent);border-radius:8px;padding-left:8px;}
+  .lb-row.top-3{background:linear-gradient(90deg,rgba(205,127,50,.10),transparent);border-radius:8px;padding-left:8px;}
   .item-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;border-radius:4px;}
   .item-row span{flex:1;font-size:15px;}
   .item-row.done span{color:var(--soft);text-decoration:line-through;}
@@ -81,7 +97,6 @@
   .new-sub{display:flex;gap:8px;margin-top:14px;}
   .new-sub input{flex:1;}
   .new-sub button{background:var(--accent-dark);color:#FFFFFF;border:none;border-radius:10px;padding:9px 16px;font-weight:700;}
-  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
   .icon-btn{background:var(--card-alpha);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:16px;}
   .signout{background:none;border:none;color:var(--soft);font-size:13px;text-decoration:underline;}
   .hidden{display:none !important;}
@@ -90,19 +105,15 @@
   .seg{display:flex;gap:6px;margin-top:10px;}
   .seg button{flex:1;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--soft);font-weight:600;font-size:13px;}
   .seg button.active{background:var(--accent);color:#FFFFFF;border-color:var(--accent);}
-  .nav-main{display:flex;gap:24px;margin-bottom:24px;border-bottom:2px solid var(--line);padding-bottom:10px;flex-wrap:wrap;}
-  .nav-main button{background:none;border:none;color:var(--soft);font-weight:700;font-size:13px;padding:4px 2px;border-bottom:3px solid transparent;text-transform:uppercase;letter-spacing:1px;}
-  .nav-main button.active{color:var(--accent);border-bottom-color:var(--accent);}
-  .logo-wrap{display:flex;align-items:center;gap:12px;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+  .main-nav-bar{display:flex;gap:4px;overflow-x:auto;flex:1;min-width:180px;}
+  .main-nav-bar button{flex-shrink:0;background:none;border:none;color:var(--soft);font-weight:700;font-size:12px;padding:9px 14px;border-radius:8px;text-transform:uppercase;letter-spacing:1px;white-space:nowrap;}
+  .main-nav-bar button.active{background:var(--accent);color:#fff;}
+  .main-nav-bar button:hover{background:rgba(255,255,255,.06);}
+  .logo-wrap{display:flex;align-items:center;gap:10px;flex-shrink:0;}
   .logo-mark circle{stroke:var(--accent);}
   .logo-mark path,.logo-mark text{fill:var(--accent);}
-  .hamburger{background:none;border:1px solid var(--line);border-radius:8px;padding:9px 11px;display:flex;flex-direction:column;gap:4px;}
-  .hamburger span{display:block;width:18px;height:2px;background:var(--ink);}
-  .nav-dropdown{position:relative;}
-  .nav-main{position:absolute;top:calc(100% + 8px);right:0;z-index:10;flex-direction:column;gap:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px;min-width:180px;box-shadow:0 12px 32px rgba(0,0,0,.5);border-bottom:1px solid var(--line);}
-  .nav-main button{padding:10px 12px;border-bottom:none !important;text-align:left;width:100%;border-radius:8px;}
-  .nav-main button.active{background:rgba(232,98,44,.14);}
-  .nav-main button:hover{background:rgba(255,255,255,.04);}
+  .profile-pill{background:var(--card-alpha);border:1px solid var(--line);border-radius:20px;padding:7px 14px;font-size:13px;white-space:nowrap;}
   .lb-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);}
   .lb-row:last-child{border-bottom:none;}
   .lb-rank{font-weight:700;color:var(--soft);width:32px;}
@@ -120,9 +131,9 @@
   .card:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(0,0,0,.45);border-color:rgba(232,98,44,.3);}
   button{transition:transform .12s ease,background-color .15s ease,opacity .15s ease;}
   .btn-primary:active,.add-item button:active,.new-sub button:active{transform:scale(.96);}
-  .tab,.icon-btn,.hamburger{transition:transform .12s ease,background-color .15s ease,border-color .15s ease;}
+  .tab,.icon-btn{transition:transform .12s ease,background-color .15s ease,border-color .15s ease;}
   .tab:hover{border-color:var(--accent);}
-  .tab:active,.icon-btn:active,.hamburger:active{transform:scale(.94);}
+  .tab:active,.icon-btn:active{transform:scale(.94);}
   @keyframes popCheck{0%{transform:scale(1);}45%{transform:scale(1.3);}100%{transform:scale(1);}}
   .item-row input[type=checkbox]:checked{animation:popCheck .28s ease;}
   .progress-fill{transition:width .5s cubic-bezier(.2,.8,.2,1);}
@@ -175,25 +186,19 @@
           <circle cx="20" cy="20" r="17" fill="none" stroke-width="2"/>
           <text x="20" y="27" font-family="Space Grotesk, sans-serif" font-size="19" font-weight="700" text-anchor="middle">R</text>
         </svg>
-        <div>
-          <h1 style="margin-bottom:0;font-size:24px;">Ritual</h1>
-          <span class="muted" id="whoami"></span>
-        </div>
+        <h1 style="margin:0;font-size:22px;">Ritual</h1>
       </div>
+      <nav class="main-nav-bar" id="mainNav">
+        <button data-view="home" class="active">Overview</button>
+        <button data-view="routines">Routines</button>
+        <button data-view="tasks">Tasks</button>
+        <button data-view="stats">Progress</button>
+        <button data-view="leaderboard">Leaderboard</button>
+      </nav>
       <div class="topbar-actions">
+        <div class="profile-pill" id="whoami"></div>
         <button class="icon-btn" id="customizeBtn" title="Customize look">🎨</button>
         <button class="signout" id="signout">Log out</button>
-        <div class="nav-dropdown">
-          <button class="hamburger" id="navToggle" title="Menu"><span></span><span></span><span></span></button>
-          <div class="nav-main hidden" id="mainNav">
-            <button data-view="home" class="active">Home</button>
-            <button data-view="routines">Routines</button>
-            <button data-view="tasks">Tasks</button>
-            <button data-view="stats">Stats</button>
-            <button data-view="leaderboard">Leaderboard</button>
-            <button data-view="about">About</button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -259,6 +264,10 @@
     <div id="leaderboardView" class="hidden"></div>
 
     <div id="aboutView" class="hidden"></div>
+
+    <div style="text-align:center;margin-top:24px;">
+      <button class="btn-link" id="aboutFooterLink" style="color:var(--soft);">About Ritual</button>
+    </div>
   </div>
 
   <div id="toastContainer"></div>
@@ -409,6 +418,7 @@ function finishBoot(){
   showView('home');
   loadRoutinesList().then(()=>{
     renderTabs();
+    renderHome();
     if(activeRoutineId) loadRoutine(activeRoutineId);
   });
 }
@@ -454,12 +464,24 @@ function showToast(msg){
   setTimeout(()=>t.remove(), 3000);
 }
 
+function mondayOf(d){
+  const date = new Date(d);
+  const day = date.getDay();
+  date.setDate(date.getDate() + (day === 0 ? -6 : 1 - day));
+  return localDateStr(date);
+}
+
 async function adjustXp(delta){
   if(!myProfile) return;
   const prevLevel = getLevel(myProfile.total_xp);
   const prevTier = getTitleFor(myProfile.total_xp).title;
+  const thisWeek = mondayOf(new Date());
+  if(myProfile.week_start !== thisWeek){ myProfile.weekly_xp = 0; myProfile.week_start = thisWeek; }
+  myProfile.weekly_xp = Math.max(0, (myProfile.weekly_xp || 0) + delta);
   myProfile.total_xp = Math.max(0, myProfile.total_xp + delta);
-  await sb.from('profiles').update({total_xp: myProfile.total_xp}).eq('user_id', session.user.id);
+  await sb.from('profiles').update({
+    total_xp: myProfile.total_xp, weekly_xp: myProfile.weekly_xp, week_start: myProfile.week_start
+  }).eq('user_id', session.user.id);
   renderProfileBadge();
   if(delta > 0){
     const newLevel = getLevel(myProfile.total_xp);
@@ -470,15 +492,10 @@ async function adjustXp(delta){
 }
 
 function setupNav(){
-  $('navToggle').onclick = () => $('mainNav').classList.toggle('hidden');
   document.querySelectorAll('#mainNav button').forEach(b=>{
-    b.onclick = () => { showView(b.dataset.view); $('mainNav').classList.add('hidden'); };
+    b.onclick = () => showView(b.dataset.view);
   });
-  document.addEventListener('click', (e)=>{
-    if(!$('mainNav').classList.contains('hidden') && !e.target.closest('.nav-dropdown')){
-      $('mainNav').classList.add('hidden');
-    }
-  });
+  $('aboutFooterLink').onclick = () => showView('about');
 }
 
 function showView(view){
@@ -493,7 +510,7 @@ function showView(view){
   if(view==='about') renderAbout();
 }
 
-function renderHome(){
+async function renderHome(){
   $('homeView').innerHTML = `
     <div class="eyebrow">01 · OVERVIEW</div>
     <div class="stat-grid">
@@ -511,9 +528,47 @@ function renderHome(){
       </div>
     </div>
     <div class="card">
-      <p class="muted" style="margin:0;">Welcome back, <strong>${escapeHtml(myProfile.username)}</strong>. Head to <strong>Routines</strong> for today's steps, <strong>Tasks</strong> for one-off items, <strong>Stats</strong> to see your full progress, or the <strong>Leaderboard</strong> to compare with friends.</p>
+      <h3 style="margin:0 0 12px;font-size:15px;">Today's focus</h3>
+      <div id="todaysFocus"><p class="muted">Loading…</p></div>
     </div>
   `;
+
+  const focusEl = $('todaysFocus');
+  if(routinesList.length === 0){
+    focusEl.innerHTML = '<p class="muted">No routines yet — head to Routines to create one.</p>';
+    return;
+  }
+
+  const today = localDateStr();
+  const rows = await Promise.all(routinesList.map(async r=>{
+    const {data: items} = await sb.from('routine_items').select('id').eq('routine_id', r.id);
+    const total = (items||[]).length;
+    const {data: comp} = await sb.from('completions').select('done_item_ids')
+      .eq('user_id', session.user.id).eq('routine_id', r.id).eq('completed_date', today).maybeSingle();
+    const done = comp ? comp.done_item_ids.length : 0;
+    return {routine: r, total, done};
+  }));
+
+  focusEl.innerHTML = '';
+  rows.forEach(({routine, total, done})=>{
+    const complete = total > 0 && done >= total;
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML = `
+      <span style="flex:1;">
+        <strong>${escapeHtml(routine.name)}</strong>
+        <span class="muted" style="font-size:13px;"> · ${done}/${total} done today${complete ? ' ✓' : ''}</span>
+      </span>
+      <button class="btn-primary" style="width:auto;margin:0;">${complete ? 'Review' : 'Start'}</button>
+    `;
+    row.querySelector('button').onclick = () => {
+      activeRoutineId = routine.id;
+      showView('routines');
+      renderTabs();
+      loadRoutine(routine.id);
+    };
+    focusEl.appendChild(row);
+  });
 }
 
 const SPORT_ICONS = ["⚽","🏀","🏈","⚾","🎾","🏐","🏉","🎱","🏓","🏸","🥊","⛳","🏹","🏊","🚴","⛷️","🏂","🥇"];
@@ -524,12 +579,9 @@ function buildTierNodes(xp, tier){
   return TITLES.map(t=>{
     const unlocked = xp >= t.min;
     const isSelected = (myProfile.icon || tier.icon) === t.icon;
-    return `<div class="roadmap-node ${unlocked?'unlocked':''} ${isSelected?'selected':''}">
-      <button class="node-icon" data-icon="${t.icon}" ${unlocked?'':'disabled'} title="${unlocked ? 'Use this icon' : t.title+' — locked'}">${unlocked ? t.icon : '🔒'}</button>
-      <div class="node-info">
-        <div class="node-title">${escapeHtml(t.title)}</div>
-        <div class="node-req">${unlocked ? 'Unlocked · ' + t.min + ' XP' : (t.min - xp) + ' XP to go'}</div>
-      </div>
+    return `<div>
+      <button class="badge-cell ${unlocked?'':'locked'} ${isSelected?'selected':''}" data-icon="${t.icon}" ${unlocked?'':'disabled'} title="${unlocked ? t.title : t.title + ' — ' + (t.min - xp) + ' XP to unlock'}" style="width:100%;">${unlocked ? t.icon : '🔒'}</button>
+      <div class="badge-label">${escapeHtml(t.title)}</div>
     </div>`;
   }).join('');
 }
@@ -539,8 +591,8 @@ function renderIconPickerBody(){
   if(iconPickerTab === 'tier'){
     const xp = myProfile.total_xp;
     const tier = getTitleFor(xp);
-    el.innerHTML = `<div class="roadmap">${buildTierNodes(xp, tier)}</div>`;
-    el.querySelectorAll('.node-icon:not([disabled])').forEach(btn=>{
+    el.innerHTML = `<div class="badge-grid">${buildTierNodes(xp, tier)}</div>`;
+    el.querySelectorAll('.badge-cell:not([disabled])').forEach(btn=>{
       btn.onclick = () => chooseIcon(btn.dataset.icon);
     });
   } else if(iconPickerTab === 'letter'){
@@ -557,10 +609,10 @@ function renderIconPickerBody(){
     };
   } else if(iconPickerTab === 'sport' || iconPickerTab === 'instrument'){
     const set = iconPickerTab === 'sport' ? SPORT_ICONS : INSTRUMENT_ICONS;
-    el.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:10px;">${set.map(ic=>
-      `<button class="node-icon unlocked" data-icon="${ic}" style="cursor:pointer;">${ic}</button>`
+    el.innerHTML = `<div class="badge-grid">${set.map(ic=>
+      `<button class="badge-cell ${myProfile.icon===ic?'selected':''}" data-icon="${ic}">${ic}</button>`
     ).join('')}</div>`;
-    el.querySelectorAll('.node-icon').forEach(btn=>{
+    el.querySelectorAll('.badge-cell').forEach(btn=>{
       btn.onclick = () => chooseIcon(btn.dataset.icon);
     });
   } else if(iconPickerTab === 'image'){
@@ -608,12 +660,12 @@ function renderStats(){
     <div class="eyebrow">04 · PROGRESS</div>
     <div class="card">
       <div class="stat-label" style="margin-bottom:0;">Level ${level}</div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${levelProgress}%;"></div></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%;" data-w="${levelProgress}"></div></div>
       <p class="muted" style="margin:8px 0 0;font-family:var(--font-mono);font-size:13px;">${xp - thisLevelXp} / ${levelSpan} XP to Level ${level+1}</p>
     </div>
     <div class="card">
       <div class="stat-label" style="margin-bottom:0;">Tier: ${escapeHtml(tier.title)}</div>
-      <div class="progress-bar"><div class="progress-fill gold" style="width:${tierProgress}%;"></div></div>
+      <div class="progress-bar"><div class="progress-fill gold" style="width:0%;" data-w="${tierProgress}"></div></div>
       <p class="muted" style="margin:8px 0 0;font-family:var(--font-mono);font-size:13px;">${nextTier ? (nextTier.min - xp) + ' XP to ' + nextTier.title : 'Highest tier reached'}</p>
     </div>
     <div class="card">
@@ -638,11 +690,14 @@ function renderStats(){
     };
   });
   renderIconPickerBody();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.querySelectorAll('#statsView .progress-fill').forEach(f=>{ f.style.width = f.dataset.w + '%'; });
+  }));
 }
 
 function renderAbout(){
   $('aboutView').innerHTML = `
-    <div class="eyebrow">05 · ABOUT</div>
+    <div class="eyebrow">06 · ABOUT</div>
     <div class="card">
       <h2 style="margin:0 0 10px;">About Ritual</h2>
       <p>Ritual helps you build routines that actually stick — morning, night, after school, after work, and anything else you want to turn into a habit. Check off small steps daily, earn XP, and watch your streaks and titles grow.</p>
@@ -682,21 +737,35 @@ async function loadTasks(){
     .order('done').order('due_date', {ascending:true, nullsFirst:false});
   const tasks = data || [];
 
-  view.innerHTML = '<div class="eyebrow">03 · TASKS</div>';
+  view.innerHTML = `
+    <div class="eyebrow">03 · TASKS</div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+      <button class="btn-primary" id="toggleAddTask" style="width:auto;margin:0;">+ Add task</button>
+    </div>
+  `;
 
   const addCard = document.createElement('div');
-  addCard.className = 'card';
+  addCard.className = 'card hidden';
+  addCard.id = 'addTaskCard';
   addCard.innerHTML = `
     <h3 style="margin:0 0 4px;font-size:16px;">Add a one-time task</h3>
     <label>Task</label>
     <input type="text" id="taskTitle" placeholder="e.g. Send the invoice">
-    <label>Due date</label>
-    <input type="date" id="taskDate">
-    <label>Due time (optional)</label>
-    <input type="time" id="taskTime">
+    <div class="form-grid-2">
+      <div>
+        <label>Due date</label>
+        <input type="date" id="taskDate">
+      </div>
+      <div>
+        <label>Due time (optional)</label>
+        <input type="time" id="taskTime">
+      </div>
+    </div>
     <label>Difficulty</label>
     <select id="taskDifficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select>
-    <button class="btn-primary" id="addTaskBtn">Add task</button>
+    <div style="display:flex;justify-content:flex-end;">
+      <button class="btn-primary" id="addTaskBtn" style="width:auto;">Add task</button>
+    </div>
   `;
   addCard.querySelector('#addTaskBtn').onclick = async () => {
     const title = addCard.querySelector('#taskTitle').value.trim();
@@ -711,79 +780,139 @@ async function loadTasks(){
     loadTasks();
   };
   view.appendChild(addCard);
+  $('toggleAddTask').onclick = () => addCard.classList.toggle('hidden');
 
-  const listCard = document.createElement('div');
-  listCard.className = 'card';
-  if(tasks.length===0){
-    listCard.innerHTML = '<p class="muted">No one-time tasks yet — add one above.</p>';
-  } else {
-    tasks.forEach(t=>{
-      const row = document.createElement('div');
-      row.className = 'item-row' + (t.done ? ' done' : '');
-      const dueText = t.due_date ? ` · due ${t.due_date}${t.due_time ? ' '+t.due_time : ''}` : '';
-      const cal = icsHref(t.title, t.due_date, t.due_time);
-      row.innerHTML = `
-        <input type="checkbox" ${t.done?'checked':''}>
-        <span>${escapeHtml(t.title)}<span class="muted" style="font-size:12px;"> +${t.xp} XP${dueText}</span></span>
-        ${cal ? `<a href="${cal}" download="${escapeHtml(t.title).replace(/[^a-z0-9]/gi,'_')}.ics" class="btn-link" style="margin:0;">Add to calendar</a>` : ''}
-        <button class="rm">×</button>
-      `;
-      row.querySelector('input').onchange = async (e) => {
-        await sb.from('tasks').update({done: e.target.checked}).eq('id', t.id);
-        adjustXp(e.target.checked ? t.xp : -t.xp);
-        loadTasks();
-      };
-      row.querySelector('.rm').onclick = async () => {
-        await sb.from('tasks').delete().eq('id', t.id);
-        loadTasks();
-      };
-      listCard.appendChild(row);
-    });
+  function taskRow(t){
+    const row = document.createElement('div');
+    row.className = 'item-row' + (t.done ? ' done' : '');
+    const dueText = t.due_date ? ` · due ${t.due_date}${t.due_time ? ' '+t.due_time : ''}` : '';
+    const cal = icsHref(t.title, t.due_date, t.due_time);
+    row.innerHTML = `
+      <input type="checkbox" ${t.done?'checked':''}>
+      <span>${escapeHtml(t.title)}<span class="muted" style="font-size:12px;"> +${t.xp} XP${dueText}</span></span>
+      ${cal ? `<a href="${cal}" download="${escapeHtml(t.title).replace(/[^a-z0-9]/gi,'_')}.ics" class="btn-link" style="margin:0;">Add to calendar</a>` : ''}
+      <button class="rm">×</button>
+    `;
+    row.querySelector('input').onchange = async (e) => {
+      await sb.from('tasks').update({done: e.target.checked}).eq('id', t.id);
+      adjustXp(e.target.checked ? t.xp : -t.xp);
+      loadTasks();
+    };
+    row.querySelector('.rm').onclick = async () => {
+      await sb.from('tasks').delete().eq('id', t.id);
+      loadTasks();
+    };
+    return row;
   }
-  view.appendChild(listCard);
+
+  const pending = tasks.filter(t=>!t.done);
+  const completed = tasks.filter(t=>t.done);
+
+  const pendingCard = document.createElement('div');
+  pendingCard.className = 'card';
+  pendingCard.innerHTML = '<h3 style="margin:0 0 8px;font-size:15px;">Pending</h3>';
+  if(pending.length===0){
+    pendingCard.innerHTML += '<p class="muted">Nothing pending — add a task above.</p>';
+  } else {
+    pending.forEach(t=>pendingCard.appendChild(taskRow(t)));
+  }
+  view.appendChild(pendingCard);
+
+  if(completed.length > 0){
+    const doneCard = document.createElement('div');
+    doneCard.className = 'card';
+    doneCard.innerHTML = '<h3 style="margin:0 0 8px;font-size:15px;">Completed</h3>';
+    completed.forEach(t=>doneCard.appendChild(taskRow(t)));
+    view.appendChild(doneCard);
+  }
 }
 
 let lbMode = 'global';
-async function loadLeaderboard(mode){
+let lbPeriod = 'all';
+async function loadLeaderboard(mode, period){
   lbMode = mode || lbMode;
+  lbPeriod = period || lbPeriod;
   const view = $('leaderboardView');
   view.innerHTML = '<p class="muted">Loading…</p>';
 
   let rows = [];
   if(lbMode === 'global'){
-    const {data} = await sb.from('profiles').select('*').order('total_xp', {ascending:false}).limit(20);
+    const {data} = await sb.from('profiles').select('*').order('total_xp', {ascending:false}).limit(100);
     rows = data || [];
   } else {
     const {data: fr} = await sb.from('friends').select('*').eq('status','accepted')
       .or(`user_id.eq.${session.user.id},friend_id.eq.${session.user.id}`);
     const ids = new Set([session.user.id]);
     (fr||[]).forEach(f=>{ ids.add(f.user_id); ids.add(f.friend_id); });
-    const {data} = await sb.from('profiles').select('*').in('user_id',[...ids]).order('total_xp',{ascending:false});
+    const {data} = await sb.from('profiles').select('*').in('user_id',[...ids]);
     rows = data || [];
   }
 
-  view.innerHTML = '';
-  const seg = document.createElement('div');
-  seg.className = 'seg';
-  seg.style.marginBottom = '16px';
-  seg.innerHTML = `<button data-m="global" class="${lbMode==='global'?'active':''}">Global</button><button data-m="friends" class="${lbMode==='friends'?'active':''}">Friends</button>`;
-  seg.querySelectorAll('button').forEach(b=> b.onclick = () => loadLeaderboard(b.dataset.m));
-  view.appendChild(seg);
+  const thisWeek = mondayOf(new Date());
+  rows = rows.map(r=>({
+    ...r,
+    score: lbPeriod === 'weekly' ? (r.week_start === thisWeek ? (r.weekly_xp || 0) : 0) : r.total_xp
+  })).sort((a,b)=>b.score - a.score).slice(0, 20);
+
+  view.innerHTML = '<div class="eyebrow">05 · LEADERBOARD</div>';
+
+  const controls = document.createElement('div');
+  controls.style.display = 'flex';
+  controls.style.gap = '12px';
+  controls.style.flexWrap = 'wrap';
+  controls.style.marginBottom = '16px';
+  controls.innerHTML = `
+    <div class="seg" style="margin:0;flex:1;min-width:180px;" id="lbScope">
+      <button data-m="global" class="${lbMode==='global'?'active':''}">Global</button>
+      <button data-m="friends" class="${lbMode==='friends'?'active':''}">Friends</button>
+    </div>
+    <div class="seg" style="margin:0;flex:1;min-width:180px;" id="lbPeriodSeg">
+      <button data-p="all" class="${lbPeriod==='all'?'active':''}">All-time</button>
+      <button data-p="weekly" class="${lbPeriod==='weekly'?'active':''}">This week</button>
+    </div>`;
+  controls.querySelectorAll('#lbScope button').forEach(b=> b.onclick = () => loadLeaderboard(b.dataset.m, null));
+  controls.querySelectorAll('#lbPeriodSeg button').forEach(b=> b.onclick = () => loadLeaderboard(null, b.dataset.p));
+  view.appendChild(controls);
 
   const card = document.createElement('div');
   card.className = 'card';
   if(rows.length===0){
     card.innerHTML = '<p class="muted">No one here yet.</p>';
   } else {
+    const medals = ['🥇','🥈','🥉'];
     rows.forEach((r,i)=>{
       const t = getTitleFor(r.total_xp);
       const row = document.createElement('div');
-      row.className = 'lb-row';
-      row.innerHTML = `<span class="lb-rank">#${i+1}</span><span class="lb-name">${renderIcon(r.icon, t.icon)} ${escapeHtml(r.username)}${r.user_id===session.user.id ? ' (you)' : ''} <span class="muted" style="font-size:12px;">${t.title}</span></span><span class="lb-xp">${r.total_xp} XP</span>`;
+      row.className = 'lb-row' + (i < 3 ? ` top-${i+1}` : '');
+      const rankLabel = i < 3 ? `<span class="lb-rank rank-${i+1}">${medals[i]}</span>` : `<span class="lb-rank">#${i+1}</span>`;
+      row.innerHTML = `${rankLabel}<span class="lb-name" style="display:flex;align-items:center;gap:10px;"><span class="avatar-chip">${renderIcon(r.icon, t.icon)}</span><span>${escapeHtml(r.username)}${r.user_id===session.user.id ? ' (you)' : ''}<br><span class="muted" style="font-size:12px;">${t.title} · Lvl ${getLevel(r.total_xp)}</span></span></span><span class="lb-xp">${r.score} XP</span>`;
       card.appendChild(row);
     });
   }
   view.appendChild(card);
+
+  const inviteCard = document.createElement('div');
+  inviteCard.className = 'card';
+  inviteCard.style.display = 'flex';
+  inviteCard.style.justifyContent = 'space-between';
+  inviteCard.style.alignItems = 'center';
+  inviteCard.style.gap = '16px';
+  inviteCard.style.flexWrap = 'wrap';
+  inviteCard.innerHTML = `
+    <div>
+      <h3 style="margin:0 0 4px;font-size:15px;">Build your circle</h3>
+      <p class="muted" style="margin:0;">Invite friends to Ritual and compete on your own leaderboard.</p>
+    </div>
+    <button class="btn-primary" style="width:auto;margin:0;" id="inviteBtn">Invite friends</button>`;
+  inviteCard.querySelector('#inviteBtn').onclick = async () => {
+    const url = window.location.origin;
+    const text = `Join me on Ritual — build routines that stick. Add me as ${myProfile.username}: ${url}`;
+    try{
+      if(navigator.share){ await navigator.share({title:'Ritual', text, url}); }
+      else { await navigator.clipboard.writeText(text); showToast('Invite link copied to clipboard'); }
+    }catch(e){ /* user cancelled share */ }
+  };
+  view.appendChild(inviteCard);
 
   if(lbMode === 'friends') await renderFriendsManager(view);
 }
@@ -1013,10 +1142,13 @@ async function renderRoutine(routine, subroutines){
     else $('routineArea').innerHTML = '<p class="muted">No routines yet — create one above.</p>';
   };
   const list = document.createElement('div');
+  let dragFromId = null;
   (items||[]).forEach(it=>{
     const row = document.createElement('div');
     row.className = 'item-row' + (doneIds.has(it.id) ? ' done' : '');
-    row.innerHTML = `<input type="checkbox" ${doneIds.has(it.id)?'checked':''}> <span>${escapeHtml(it.text)}</span> <span class="muted" style="font-size:12px;">+${it.xp||10} XP</span> <button class="rm">×</button>`;
+    row.draggable = true;
+    row.dataset.itemId = it.id;
+    row.innerHTML = `<span class="drag-handle" title="Drag to reorder">⋮⋮</span><input type="checkbox" ${doneIds.has(it.id)?'checked':''}> <span>${escapeHtml(it.text)}</span> <span class="muted" style="font-size:12px;">+${it.xp||10} XP</span> <button class="rm">×</button>`;
     row.querySelector('input').onchange = async (e) => {
       const xpVal = it.xp || 10;
       if(e.target.checked){ doneIds.add(it.id); adjustXp(xpVal); } else { doneIds.delete(it.id); adjustXp(-xpVal); }
@@ -1027,6 +1159,19 @@ async function renderRoutine(routine, subroutines){
       await sb.from('routine_items').delete().eq('id', it.id);
       renderRoutine(routine, subroutines);
     };
+    row.addEventListener('dragstart', () => { dragFromId = it.id; row.style.opacity = '.4'; });
+    row.addEventListener('dragend', () => { row.style.opacity = '1'; });
+    row.addEventListener('dragover', (e) => e.preventDefault());
+    row.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      if(dragFromId === null || dragFromId === it.id) return;
+      const ids = (items||[]).map(x=>x.id);
+      const fromIdx = ids.indexOf(dragFromId);
+      const toIdx = ids.indexOf(it.id);
+      ids.splice(toIdx, 0, ids.splice(fromIdx, 1)[0]);
+      await Promise.all(ids.map((id, idx) => sb.from('routine_items').update({position: idx}).eq('id', id)));
+      renderRoutine(routine, subroutines);
+    });
     list.appendChild(row);
   });
   card.appendChild(list);
@@ -1043,11 +1188,14 @@ async function renderRoutine(routine, subroutines){
     renderRoutine(routine, subroutines);
   };
   card.appendChild(addRow);
-  area.appendChild(card);
 
-  const subCard = document.createElement('div');
-  subCard.className = 'card';
-  subCard.innerHTML = `<h3 style="margin:0 0 4px;font-size:15px;">Sub-routines</h3><p class="muted" style="margin-top:0;">e.g. a "Gym" checklist inside this routine — tap one to open it here.</p>`;
+  const subDivider = document.createElement('div');
+  subDivider.style.borderTop = '1px solid var(--line)';
+  subDivider.style.margin = '20px 0 14px';
+  subDivider.style.paddingTop = '14px';
+  subDivider.innerHTML = `<h3 style="margin:0 0 4px;font-size:15px;">Sub-routines</h3><p class="muted" style="margin-top:0;">e.g. a "Gym" checklist inside this routine — tap one to open it here.</p>`;
+  card.appendChild(subDivider);
+
   const subListDiv = document.createElement('div');
   subListDiv.className = 'sub-list';
   subroutines.forEach(sr=>{
@@ -1107,7 +1255,7 @@ async function renderRoutine(routine, subroutines){
     subListDiv.appendChild(block);
     if(expandedSubs.has(sr.id)) renderSubChecklist(sr, body);
   });
-  subCard.appendChild(subListDiv);
+  card.appendChild(subListDiv);
 
   const newSub = document.createElement('div');
   newSub.className = 'new-sub';
@@ -1123,8 +1271,8 @@ async function renderRoutine(routine, subroutines){
       loadRoutine(routine.id);
     }
   };
-  subCard.appendChild(newSub);
-  area.appendChild(subCard);
+  card.appendChild(newSub);
+  area.appendChild(card);
 }
 
 async function renderSubChecklist(sub, containerEl){
